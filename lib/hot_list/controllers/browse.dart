@@ -30,6 +30,10 @@ class BrowseCollectionController
 
   @override
   String get key => "browse-collection-cache";
+
+  bool contains(BrowseRecord record){
+    return items.contains(record);
+  }
 }
 
 class BrowseHistoryController
@@ -58,4 +62,8 @@ class BrowseHistoryController
 
   @override
   String get key => "browse-history-cache";
+
+  bool contains(BrowseRecord record){
+    return items.contains(record);
+  }
 }

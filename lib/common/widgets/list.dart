@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:hot_list/common/controllers/base.dart';
 import '../controllers/list.dart';
 
-typedef ItemBuilder<T> = Widget Function(T, int, dynamic);
+typedef ItemBuilder<T> = Widget Function(T, int, {dynamic arg});
 
 class RichListWidget<T> extends StatefulWidget {
   final ItemBuilder<T> itemBuilder;
-  final tag;
+  final String tag;
   final dynamic argument;
   final ListController<T> controller;
   final bool keepAlive;
@@ -18,16 +18,19 @@ class RichListWidget<T> extends StatefulWidget {
   final bool reorderable;
   final bool initRefresh;
   final Axis scrollDirection;
+  final ScrollController? scrollController;
   final bool Function(T)? ietmFilter;
   final bool Function(T)? itemFilter;
+  final ScrollPhysics physics;
   final Function(T sourceItem, T targetItem)? onPositionChanged;
   final bool
       shrinkWrap; // 是否自动计算子组件高度，为true时AlwaysScrollableScrollPhysics失效, 可以不用在外包裹expanded，否则需要包裹或者在container里面指定height。
   final Widget? emptyWidget;
   static const Widget defultEmptyWdiget = Text("还没有数据~");
 
-  RichListWidget(
-      {required this.controller,
+  const RichListWidget(
+      {Key? key,
+      required this.controller,
       required this.itemBuilder,
       this.argument,
       this.tag: '',
@@ -38,14 +41,17 @@ class RichListWidget<T> extends StatefulWidget {
       this.shrinkWrap: false,
       this.reorderable: false,
       this.useEmptyWidget: false,
+      this.physics: const AlwaysScrollableScrollPhysics(),
       this.itemFilter,
       this.emptyWidget,
+      this.scrollController,
       this.ietmFilter,
       this.scrollDirection: Axis.vertical,
-      this.onPositionChanged});
+      this.onPositionChanged})
+      : super(key: key);
 
   @override
-  _RichListState createState() {
+  State<RichListWidget<T>> createState() {
     // GetBuilder
     return _RichListState<T>();
   }
@@ -79,8 +85,8 @@ class _RichListState<T> extends State<RichListWidget<T>>
     return true;
   }
 
-  Widget itemBuilder(T item, int index, arg) {
-    return widget.itemBuilder(item, index, arg);
+  Widget itemBuilder(T item, int index, {dynamic arg}) {
+    return widget.itemBuilder(item, index, arg: arg);
     // return Row(
     //   children: [
     //     Checkbox(
@@ -120,7 +126,7 @@ class _RichListState<T> extends State<RichListWidget<T>>
               .entries
               .map((e) => Container(
                   key: ValueKey(e.value),
-                  child: itemBuilder(e.value, e.key, widget.argument)))
+                  child: itemBuilder(e.value, e.key, arg: widget.argument)))
               .toList(),
           onReorder: (int oldIndex, int newIndex) {
             if (oldIndex < newIndex) {
@@ -137,11 +143,14 @@ class _RichListState<T> extends State<RichListWidget<T>>
       } else {
         child = ListView.builder(
           shrinkWrap: widget.shrinkWrap,
-          physics: AlwaysScrollableScrollPhysics(),
-          // controller: _scrollController,
+          physics: widget.physics,
+          controller: widget.scrollController,
           scrollDirection: widget.scrollDirection,
           itemBuilder: (context, index) {
-            return itemBuilder(items[index], index, widget.argument);
+            return itemBuilder(
+              items[index],
+              index,
+            );
           },
           itemCount: items.length,
         );
@@ -225,7 +234,7 @@ class StatelessListWidget<T> extends StatelessWidget {
   }
 
   Widget tileBuilder(T item, int index, arg) {
-    return itemBuilder(item, index, arg);
+    return itemBuilder(item, index, arg: arg);
     // return Row(
     //   children: [
     //     Checkbox(
@@ -382,7 +391,8 @@ class _SingleListState<T> extends State<SingleListWidget<T>>
             .entries
             .map((e) => Container(
                 key: ValueKey(e.value),
-                child: widget.itemBuilder(e.value, e.key, widget.argument)))
+                child:
+                    widget.itemBuilder(e.value, e.key, arg: widget.argument)))
             .toList(),
         onReorder: (int oldIndex, int newIndex) {
           if (oldIndex < newIndex) {
@@ -401,8 +411,8 @@ class _SingleListState<T> extends State<SingleListWidget<T>>
         physics: widget.physics,
         // controller: _scrollController,
         itemBuilder: (context, index) {
-          return widget.itemBuilder(
-              widget.items[index], index, widget.argument);
+          return widget.itemBuilder(widget.items[index], index,
+              arg: widget.argument);
         },
         itemCount: widget.items.length,
       );

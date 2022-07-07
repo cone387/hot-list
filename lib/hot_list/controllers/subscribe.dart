@@ -124,7 +124,7 @@ class DataSubscribeController extends HttpCacheableListController<DataEntity> {
 
   @override
   DataEntity decoder(Json json) {
-    return DataEntity.fromJson(json);
+    return DataEntity.fromJson(json, subscribe);
   }
 
   @override

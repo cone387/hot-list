@@ -10,7 +10,6 @@ import 'package:hot_list/hot_list/widgets/mobile_browse.dart'
 
 import 'package:flutter/material.dart';
 
-
 class BrowseDetailPage extends StatefulWidget {
   final BrowseRecord _record;
 
@@ -42,7 +41,7 @@ class _BrowseDetailState extends State<BrowseDetailPage> {
   }
 }
 
-Widget recordBuilder(BrowseRecord record, int index, dynamic argument) {
+Widget recordBuilder(BrowseRecord record, int index, {dynamic arg}) {
   return ListTile(
       // isThreeLine: true,
       // subtitle: history[index].sub,
@@ -83,7 +82,7 @@ class BrowseHistoryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Browse History"),
+        title: const Text("浏览记录"),
       ),
       body: RichListWidget<BrowseRecord>(
         controller: BrowseHistoryController(),

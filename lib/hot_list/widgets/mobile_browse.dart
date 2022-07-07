@@ -6,8 +6,9 @@ import 'package:hot_list/common/commont.dart';
 import 'package:hot_list/hot_list/controllers/browse.dart';
 import 'package:hot_list/hot_list/entities/subscribe.dart';
 import 'package:hot_list/logger.dart';
-import 'package:hot_list/route.dart';
 import 'package:flutter/material.dart';
+import 'package:hot_list/route.dart';
+
 
 void goToDetail({required BrowseRecord record}) {
   logger.d("goto $record");
@@ -48,7 +49,7 @@ class BrowseWidget extends StatelessWidget {
   }
 }
 
-Widget recordBuilder(BrowseRecord record, int index, dynamic argument) {
+Widget recordBuilder(BrowseRecord record, int index, {dynamic arg}) {
   return ListTile(
       // isThreeLine: true,
       // subtitle: history[index].sub,

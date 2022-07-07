@@ -35,11 +35,13 @@ class DataEntity extends IdSerializable {
   late String title;
   late String url;
   late int subId = 0;
-  late int pos = 0;
+  int pos = 0;
   String? tag;
   String? image;
+  Subscribe subscribe;
 
-  DataEntity.fromJson(Json data) {
+  DataEntity.fromJson(Json data, this.subscribe) {
+    id = data['id'];
     title = data['title'];
     url = data['url'];
     tag = data['tag'];
@@ -51,6 +53,7 @@ class DataEntity extends IdSerializable {
   @override
   toJson() {
     return {
+      'id': id,
       'title': title,
       'url': url,
       'tag': tag,
@@ -170,11 +173,11 @@ class UserSubscribe extends IdSerializable {
   UserSubscribe copyWith({
     String? name,
     double? position,
-  }){
-    var o = UserSubscribe(subscribe: subscribe); 
+  }) {
+    var o = UserSubscribe(subscribe: subscribe);
     o.id = id;
-    o._name = name?? _name;
-    o.position = position?? this.position;
+    o._name = name ?? _name;
+    o.position = position ?? this.position;
     return o;
   }
 }
@@ -190,7 +193,7 @@ class BrowseRecord extends IdSerializable {
 
   BrowseRecord.fromJson(json) {
     subscribe = Subscribe.fromJson(json['subscribe']);
-    data = DataEntity.fromJson(json['data']);
+    data = DataEntity.fromJson(json['data'], subscribe);
     browseTime = DateTime.parse(json['create_time']);
     title = json['title'];
     id = json['id'];
@@ -210,6 +213,23 @@ class BrowseRecord extends IdSerializable {
   @override
   String toString() {
     return "BrowseRecord(subscibe=$subscribe, data=$data)";
+  }
+
+  @override
+  // ignore: hash_and_equals
+  bool operator ==(Object other) {
+    bool v = false;
+    if (identical(this, other)) {
+      v = true;
+    }
+    ;
+    if (other is BrowseRecord) {
+      v = other.subscribe.id == subscribe.id && other.data.id == data.id;
+    }
+    if (v) {
+      return v;
+    }
+    return v;
   }
 }
 

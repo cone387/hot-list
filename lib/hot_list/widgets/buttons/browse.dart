@@ -14,7 +14,7 @@ Widget ToHistoryButton() {
       icon: const Icon(
         Icons.history,
         size: 25,
-        color: Colors.blue,
+        // color: Colors.blue,
       ),
       onPressed: () {
         logger.d("click history");

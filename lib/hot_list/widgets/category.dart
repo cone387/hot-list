@@ -9,13 +9,16 @@ class CategoryDetailWidget extends StatelessWidget {
   late final CategoryDetailController controller =
       CategoryDetailController(category);
 
+  final ScrollController scrollController = ScrollController();
+
   CategoryDetailWidget({Key? key, required this.category}) : super(key: key);
 
   @override
   Widget build(context) {
     return RichListWidget<Subscribe>(
+        scrollController: scrollController,
         controller: CategoryDetailController(category),
-        itemBuilder: (Subscribe subscribe, int index, c) =>
+        itemBuilder: (Subscribe subscribe, int index, {arg}) =>
             SubscribeTile(subscribe: subscribe));
   }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hot_list/common/widgets/image.dart';
+import 'package:hot_list/hot_list/api.dart';
 import 'package:hot_list/hot_list/controllers/subscribe.dart';
 import 'package:hot_list/hot_list/entities/subscribe.dart';
 import 'package:hot_list/hot_list/widgets/buttons/browse.dart';
@@ -80,106 +82,118 @@ class _SbscribeState extends State<SubscribePage>
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<UserSubscribeControler>(
-      init: UserSubscribeControler(),
-      id: UserSubscribeControler.tabId,
-      global: false,
-      builder: (controller) {
-        int index = current == null ? 0 : controller.items.indexOf(current);
-        if (index == -1) index = 0;
-        TabController tabController = TabController(
-            initialIndex: index, length: controller.items.length, vsync: this);
-        tabController.addListener(() {
-          current = controller.items[tabController.index];
-        });
-        Widget tabBar = Expanded(
-            child: TabBar(
-          controller: tabController,
-          isScrollable: true,
-          tabs: controller.items.map((e) => Tab(text: e.name)).toList(),
-          indicatorColor: Colors.red,
-          unselectedLabelColor: Colors.black,
-          labelColor: Colors.red,
-        ));
-
-        Widget tabView = TabBarView(
+    Widget body = GetBuilder<UserSubscribeControler>(
+        init: UserSubscribeControler(),
+        id: UserSubscribeControler.tabId,
+        global: false,
+        builder: (controller) {
+          int index = current == null ? 0 : controller.items.indexOf(current);
+          if (index == -1) index = 0;
+          TabController tabController = TabController(
+              initialIndex: index,
+              length: controller.items.length,
+              vsync: this);
+          tabController.addListener(() {
+            current = controller.items[tabController.index];
+          });
+          TabBar tabBar = TabBar(
             controller: tabController,
-            children: controller.items
-                .map((e) => SubscriibeDetailWidget(subscribe: e.subscribe))
-                .toList());
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text("今日热榜"),
-            bottom: AppBarSearch(
-                onTap: () {
-                  Get.toNamed(Routes.search);
-                  // actions: [goToHistoryBtn(context)],
-                },
-                actions: [ToHistoryButton()]),
-          ),
-          body: Column(
-            children: [
-              SizedBox(
-                height: kToolbarHeight,
-                child: Row(
-                  children: [tabBar, SubscribeManageButton()],
-                ),
-              ),
-              Expanded(child: tabView)
-            ],
-          ),
-        );
+            isScrollable: true,
+            labelPadding: EdgeInsets.zero,
+            tabs: controller.items
+                .map((e) => Stack(fit: StackFit.passthrough, children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Tab(
+                          // padding: const EdgeInsets.only(top: 10, right: 10),
+                          child: Text(e.name),
+                        ),
+                      ),
+                      Positioned(
+                          right: 4,
+                          top: 0,
+                          child: Container(
+                            width: 20,
+                            height: 20,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: Colors.orange,
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            child: const Text(
+                              "19",
+                              style: TextStyle(color: Colors.black),
+                            ),
+                          ))
+                    ]))
+                .toList(),
+            indicatorColor: Colors.red,
+            unselectedLabelColor: Colors.black,
+            labelColor: Colors.red,
+          );
 
-        //   return SafeArea(
-        //     child: Scaffold(
-        //       body: NestedScrollView(
-        //           // floatHeaderSlivers: true,
-        //           headerSliverBuilder: (context, bool) {
-        //             return [
-        //               SliverAppBar(
-        //                 // expandedHeight: 100.0,
-        //                 automaticallyImplyLeading: false,
-        //                 floating: false,
-        //                 // snap: true,
-        //                 backgroundColor: Color.fromRGBO(250, 250, 250, 1),
-        //                 // backgroundColor: Colors.red,
-        //                 pinned: false,
-        //                 title: Text("今日热榜"),
-        //                 bottom: AppBarSearch(
-        //                     onTap: () {
-        //                       // Get.toNamed(Routes.search);},
-        //                       //   actions: [goToHistoryBtn(context)],
-        //                     },
-        //                     actions: [ToHistoryButton()]),
-        //               ),
+          Widget tabView = TabBarView(
+              controller: tabController,
+              children: controller.items
+                  .map((e) => SubscriibeDetailWidget(subscribe: e.subscribe))
+                  .toList());
 
-        //               // SliverPersistentHeader的刷新机制貌似是独立的
-        //               SliverPersistentHeader(
-        //                 delegate: new SliverDelegate(
-        //                   Row(
-        //                     // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //                     children: [
-        //                       tabBar,
-        //                       IconButton(
-        //                           icon: Icon(Icons.menu_sharp),
-        //                           onPressed: () {
-        //                             Get.toNamed(HotNewsRoutes.subscribeManage)
-        //                                 ?.then((value) {
-        //                               controller.update();
-        //                             });
-        //                           })
-        //                     ],
-        //                   ),
-        //                   color: Color.fromRGBO(250, 250, 250, 1),
-        //                 ),
-        //                 pinned: true,
-        //               ),
-        //             ];
-        //           },
-        //           body: tabView),
-        //     ),
-        //   );
-      },
-    );
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text("订阅"),
+              centerTitle: true,
+              actions: [
+                IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
+                ToHistoryButton(),
+              ],
+              bottom: tabBar,
+            ),
+            body: tabView,
+          );
+          //   return  NestedScrollView(
+          //       // floatHeaderSlivers: true,
+          //       headerSliverBuilder: (context, a) {
+          //         return [
+          //           SliverAppBar(
+          //             automaticallyImplyLeading: false,
+          //             floating: false,
+          //             backgroundColor: const Color.fromRGBO(250, 250, 250, 1),
+          //             pinned: false,
+          //             flexibleSpace: FlexibleSpaceBar(
+          //                 centerTitle: true,
+          //                 title: AppBarSearch(
+          //                   onTap: () {
+          //                     Get.toNamed(Routes.search);
+          //                   },
+          //                   actions: [ToHistoryButton()],
+          //                 )),
+          //           ),
+          //           SliverPersistentHeader(
+          //             delegate: SliverDelegate(
+          //               Row(
+          //                 // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //                 children: [
+          //                   tabBar,
+          //                   IconButton(
+          //                       icon: const Icon(Icons.menu_sharp),
+          //                       onPressed: () {
+          //                         Get.toNamed(Routes.subscribeManage)
+          //                             ?.then((value) {
+          //                           controller.update();
+          //                         });
+          //                       })
+          //                 ],
+          //               ),
+          //               color: const Color.fromRGBO(250, 250, 250, 1),
+          //             ),
+          //             pinned: true,
+          //           ),
+          //         ];
+          //       },
+          //       body: tabView);
+
+          // });
+        });
+    return body;
   }
 }
