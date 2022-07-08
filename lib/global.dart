@@ -29,9 +29,9 @@ class Env {
     return domain!;
   }
 
-  static const Env companySimulator = Env(ip: "30.11.150.58");
+  static const Env companySimulator = Env(ip: "127.0.0.1");
   static const Env debugRealMachine = Env(ip: "192.168.31.219");
-  static const Env debugSimulator = Env(ip: "30.11.150.58");
+  static const Env debugSimulator = Env(ip: "127.0.0.1");
   static const Env releaseIpTX = Env(ip: "42.192.130.234");
   static const Env releaseIpALY = Env(ip: "139.196.162.148");
   static const Env releaseDomainTX =

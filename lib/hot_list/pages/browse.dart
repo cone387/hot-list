@@ -4,11 +4,8 @@ import 'package:hot_list/common/commont.dart';
 import 'package:hot_list/hot_list/controllers/browse.dart';
 import 'package:hot_list/hot_list/entities/subscribe.dart';
 import 'package:hot_list/hot_list/widgets/buttons/browse.dart';
-// ignore: unused_import
-import 'package:hot_list/hot_list/widgets/mobile_browse.dart'
-    if (dart.library.html) 'package:hot_list/hot_list/widgets/web_browse.dart';
-
 import 'package:flutter/material.dart';
+import 'package:hot_list/hot_list/widgets/browse.dart';
 
 class BrowseDetailPage extends StatefulWidget {
   final BrowseRecord _record;
@@ -41,23 +38,6 @@ class _BrowseDetailState extends State<BrowseDetailPage> {
   }
 }
 
-Widget recordBuilder(BrowseRecord record, int index, {dynamic arg}) {
-  return ListTile(
-      // isThreeLine: true,
-      // subtitle: history[index].sub,
-      minLeadingWidth: 0,
-      leading: Text(
-        (index + 1).toString(),
-        style: const TextStyle(color: Colors.red),
-      ),
-      title: Align(
-          alignment: Alignment.centerLeft, child: Text(record.data.title)),
-      trailing: Text(record.browseTime.smartFormat),
-      onTap: () {
-        goToDetail(record: record);
-      });
-}
-
 class BrowseCollectionPage extends StatelessWidget {
   const BrowseCollectionPage({Key? key}) : super(key: key);
 
@@ -65,11 +45,14 @@ class BrowseCollectionPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Browse Collection"),
+        title: const Text("收藏"),
       ),
       body: RichListWidget<BrowseRecord>(
         controller: BrowseCollectionController(),
-        itemBuilder: recordBuilder,
+        itemBuilder: (item, index) => RecordTile(
+          data: item.data,
+          index: index,
+        ),
       ),
     );
   }
@@ -86,7 +69,10 @@ class BrowseHistoryPage extends StatelessWidget {
       ),
       body: RichListWidget<BrowseRecord>(
         controller: BrowseHistoryController(),
-        itemBuilder: recordBuilder,
+        itemBuilder: (item, index) => RecordTile(
+          data: item.data,
+          index: index,
+        ),
       ),
     );
   }

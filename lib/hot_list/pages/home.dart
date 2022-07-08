@@ -24,13 +24,12 @@ class HomePage extends StatefulWidget {
 class _HomeState extends State<HomePage>
     with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   late TabController controller;
-  late PageController _pageController;
+  late final PageController _pageController = PageController(initialPage: _currentIndex);
   int _currentIndex = 0;
 
   final _pageItems = [
     PageItem(
-        bar: const BottomNavigationBarItem(
-            icon: Icon(Icons.hot_tub), label: "热点"),
+        bar: const BottomNavigationBarItem(icon: Icon(Icons.home), label: "热点"),
         widget: const SubscribePage()),
     PageItem(
         bar: const BottomNavigationBarItem(
@@ -41,16 +40,6 @@ class _HomeState extends State<HomePage>
             icon: Icon(Icons.people), label: "我的"),
         widget: const UsagePage()),
   ];
-
-  @override
-  void initState() {
-    super.initState();
-    _pageController = PageController(initialPage: _currentIndex);
-    controller = TabController(
-      length: 3,
-      vsync: this,
-    );
-  }
 
   onTap(int index) {
     _pageController.jumpToPage(index);

@@ -31,8 +31,20 @@ class BrowseCollectionController
   @override
   String get key => "browse-collection-cache";
 
-  bool contains(BrowseRecord record){
+  bool contains(Collection record) {
     return items.contains(record);
+  }
+
+  @override
+  Future<String?> addItem(Collection item) {
+    item.data.isCollected = true;
+    return super.addItem(item);
+  }
+
+  @override
+  Future<String?> removeItem(Collection item) {
+    item.data.isCollected = false;
+    return super.removeItem(item);
   }
 }
 
@@ -45,7 +57,7 @@ class BrowseHistoryController
 
   @override
   BrowseRecord decoder(Json json) {
-    return Collection.fromJson(json);
+    return BrowseRecord.fromJson(json);
   }
 
   @override
@@ -63,7 +75,19 @@ class BrowseHistoryController
   @override
   String get key => "browse-history-cache";
 
-  bool contains(BrowseRecord record){
+  bool contains(BrowseRecord record) {
     return items.contains(record);
+  }
+
+  @override
+  Future<String?> addItem(BrowseRecord item) {
+    item.data.isBrowsed = true;
+    return super.addItem(item);
+  }
+
+  @override
+  Future<String?> removeItem(BrowseRecord item) {
+    item.data.isBrowsed = false;
+    return super.removeItem(item);
   }
 }

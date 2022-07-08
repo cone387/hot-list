@@ -30,22 +30,29 @@ mixin PagedListMixin<T> on ListController<T> {
   }
 
   Future<List<T>> loadMoreItems() async {
-    if (isLoading) {
-      logger.d("$runtimeType is loading, load more items ignored");
-      return [];
+    List<T> objects = [];
+    if (isLoading || !haveMore) {
+      logger.d(isLoading
+          ? "$runtimeType is loading, load more items ignored"
+          : "$runtimeType have no more items");
+      return objects;
     }
     // 如果page=initPage说明这时应该刷新而不是加载
-    if (page != initPage && haveMore) {
-      isLoading = true;
-      var o = await pageItems(page);
-      appendItems(o);
+    // if (page != initPage)
+    isLoading = true;
+    try {
+      objects = await pageItems(page);
+    } catch (e) {
+      objects = [];
+      logger.e("$runtimeType on page items");
+    } finally {
+      isLoading = false;
+      appendItems(objects);
       loadTimes += 1;
       page += 1;
-      haveMore = o.length == pageSize;
-      isLoading = false;
-      return o;
+      haveMore = objects.length == pageSize;
     }
-    return [];
+    return objects;
   }
 }
 
@@ -53,11 +60,12 @@ mixin ItemAddMixin<T> on ListController<T> {
   Future<String?> onItemAdd(T item);
   Future<String?> onItemsAdd(List<T> objects) async {
     String? error;
-    objects.forEach((element) async {
-      if (error == null) {
-        error = await onItemAdd(element);
+    for (var element in objects) {
+      error = await onItemAdd(element);
+      if (error != null) {
+        break;
       }
-    });
+    }
     return error;
   }
 
@@ -82,9 +90,9 @@ mixin ItemRemoveMixin<T> on ListController<T> {
 
   Future<List<String?>> removeItems(List<T> objects) async {
     List<String?> errors = [];
-    objects.forEach((element) async {
+    for (var element in objects) {
       errors.add(await removeItem(element));
-    });
+    }
     return errors;
   }
 }
@@ -153,6 +161,7 @@ mixin HttpListMixin<T> on ListController<T>, HttpItemMixin<T> {
 
 // 添加item到服务端
 mixin HttpPagedListMixin<T> on HttpListMixin<T>, PagedListMixin<T> {
+  @override
   Json get listParams =>
       {'page': page.toString(), 'page_size': pageSize.toString()};
 }
@@ -257,7 +266,7 @@ mixin CacheableListMixin<T extends Serializable> on ListController<T> {
   }
 
   String get key;
-  
+
   @override
   T decoder(Json json);
 

@@ -29,11 +29,17 @@ abstract class RichListController<T> extends ListCreateRemoveController<T>
 
 // list http controller
 abstract class HttpListController<T> extends ListController<T>
-    with HttpItemMixin<T>, HttpListMixin<T> {}
+    with HttpItemMixin<T>, HttpListMixin<T> {
+  HttpListController({bool autoRefresh = true, List<T>? initItems})
+      : super(autoRefresh: autoRefresh, initItems: initItems);
+}
 
 abstract class HttpPagedListController<T extends Serializable>
     extends PagedListController<T>
-    with HttpItemMixin<T>, HttpListMixin<T>, HttpPagedListMixin<T> {}
+    with HttpItemMixin<T>, HttpListMixin<T>, HttpPagedListMixin<T> {
+  HttpPagedListController({bool autoRefresh = true, List<T>? initItems})
+      : super(autoRefresh: autoRefresh, initItems: initItems);
+}
 
 abstract class HttpListCreateController<T extends IdSerializable>
     extends HttpPagedListController<T>

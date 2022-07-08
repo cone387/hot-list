@@ -15,7 +15,7 @@ import 'package:hot_list/hot_list/widgets/mobile_browse.dart'
 
 class SubscribeTile extends StatelessWidget {
   final Subscribe subscribe;
-  const SubscribeTile({required this.subscribe, Key? key}) : super(key: key);
+  const SubscribeTile({required this.subscribe, int? index, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -45,18 +45,30 @@ class DataTileBuilder extends StatefulWidget {
 
 class _DataTileBuilderState extends State<DataTileBuilder> {
   @override
+  void initState() {
+    super.initState();
+    widget.data.listenChange('isBrowsed', () => setState(() {}));
+  }
+
+  @override
   Widget build(BuildContext context) {
     DataEntity data = widget.data;
     int index = widget.index;
     Widget? subTitle;
     Widget tralling;
     Widget title = Text(data.title,
-        style: TextStyle(
-            color: BrowseHistoryController().contains(
-                    BrowseRecord(subscribe: data.subscribe, data: data))
-                ? Colors.grey
-                : Colors.black));
-    Widget leading = Text((index + 1).toString());
+        style: TextStyle(color: data.isBrowsed ? Colors.grey : Colors.black));
+    Widget leading = Column(
+      mainAxisAlignment: data.image != null
+          ? MainAxisAlignment.start
+          : MainAxisAlignment.center,
+      children: [
+        Text(
+          (index + 1).toString(),
+          textAlign: TextAlign.end,
+        ),
+      ],
+    );
     if (data.image != null) {
       tralling = buildRectWidget(
           radius: 5,
@@ -71,7 +83,9 @@ class _DataTileBuilderState extends State<DataTileBuilder> {
         );
       }
     } else {
-      tralling = Text(data.tag ?? "");
+      tralling = Text(
+        data.tag ?? "",
+      );
     }
     return ListTile(
       leading: leading,

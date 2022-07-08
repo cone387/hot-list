@@ -4,10 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:hot_list/common/controllers/base.dart';
 import '../controllers/list.dart';
 
-typedef ItemBuilder<T> = Widget Function(T, int, {dynamic arg});
+typedef ItemBuilder<T> = Widget Function(T, int);
 
 class RichListWidget<T> extends StatefulWidget {
   final ItemBuilder<T> itemBuilder;
+  final ItemBuilder<T>? separatedBuilder;
   final String tag;
   final dynamic argument;
   final ListController<T> controller;
@@ -46,6 +47,7 @@ class RichListWidget<T> extends StatefulWidget {
       this.emptyWidget,
       this.scrollController,
       this.ietmFilter,
+      this.separatedBuilder,
       this.scrollDirection: Axis.vertical,
       this.onPositionChanged})
       : super(key: key);
@@ -85,8 +87,8 @@ class _RichListState<T> extends State<RichListWidget<T>>
     return true;
   }
 
-  Widget itemBuilder(T item, int index, {dynamic arg}) {
-    return widget.itemBuilder(item, index, arg: arg);
+  Widget itemBuilder(T item, int index) {
+    return widget.itemBuilder(item, index);
     // return Row(
     //   children: [
     //     Checkbox(
@@ -108,8 +110,7 @@ class _RichListState<T> extends State<RichListWidget<T>>
         items = controller.filterItems(widget.itemFilter!);
       }
       Widget child;
-
-      if (items.length == 0 &&
+      if (items.isEmpty &&
           (widget.useEmptyWidget || widget.emptyWidget != null)) {
         child = Center(
           child: SingleChildScrollView(
@@ -126,7 +127,7 @@ class _RichListState<T> extends State<RichListWidget<T>>
               .entries
               .map((e) => Container(
                   key: ValueKey(e.value),
-                  child: itemBuilder(e.value, e.key, arg: widget.argument)))
+                  child: widget.itemBuilder(e.value, e.key)))
               .toList(),
           onReorder: (int oldIndex, int newIndex) {
             if (oldIndex < newIndex) {
@@ -140,6 +141,12 @@ class _RichListState<T> extends State<RichListWidget<T>>
             widget.onPositionChanged?.call(sourceItem, targetItem);
           },
         );
+      } else if (widget.separatedBuilder != null) {
+        child = ListView.separated(
+            itemBuilder: (context, index) => itemBuilder(items[index], index),
+            separatorBuilder: (context, index) =>
+                widget.separatedBuilder!(items[index], index),
+            itemCount: items.length);
       } else {
         child = ListView.builder(
           shrinkWrap: widget.shrinkWrap,
@@ -186,8 +193,8 @@ class _RichListState<T> extends State<RichListWidget<T>>
 
 class StatelessListWidget<T> extends StatelessWidget {
   final ItemBuilder<T> itemBuilder;
-  final tag;
-  final dynamic argument;
+  final String tag;
+  final ScrollPhysics physics;
   final ListController<T> controller;
   final bool keepAlive;
   final bool refreshable;
@@ -207,7 +214,6 @@ class StatelessListWidget<T> extends StatelessWidget {
   const StatelessListWidget(
       {required this.controller,
       required this.itemBuilder,
-      this.argument,
       this.tag: '',
       this.keepAlive: true,
       this.refreshable: true,
@@ -219,6 +225,7 @@ class StatelessListWidget<T> extends StatelessWidget {
       this.itemFilter,
       this.emptyWidget,
       this.ietmFilter,
+      this.physics: const AlwaysScrollableScrollPhysics(),
       this.scrollDirection: Axis.vertical,
       this.onPositionChanged});
 
@@ -233,8 +240,8 @@ class StatelessListWidget<T> extends StatelessWidget {
     return true;
   }
 
-  Widget tileBuilder(T item, int index, arg) {
-    return itemBuilder(item, index, arg: arg);
+  Widget tileBuilder(T item, int index) {
+    return itemBuilder(item, index);
     // return Row(
     //   children: [
     //     Checkbox(
@@ -277,8 +284,7 @@ class StatelessListWidget<T> extends StatelessWidget {
               .asMap()
               .entries
               .map((e) => Container(
-                  key: ValueKey(e.value),
-                  child: tileBuilder(e.value, e.key, argument)))
+                  key: ValueKey(e.value), child: tileBuilder(e.value, e.key)))
               .toList(),
           onReorder: (int oldIndex, int newIndex) {
             if (oldIndex < newIndex) {
@@ -295,11 +301,11 @@ class StatelessListWidget<T> extends StatelessWidget {
       } else {
         child = ListView.builder(
           shrinkWrap: shrinkWrap,
-          physics: AlwaysScrollableScrollPhysics(),
+          physics: physics,
           // controller: _scrollController,
           scrollDirection: scrollDirection,
           itemBuilder: (context, index) {
-            return tileBuilder(items[index], index, argument);
+            return tileBuilder(items[index], index);
           },
           itemCount: items.length,
         );
@@ -333,8 +339,7 @@ class StatelessListWidget<T> extends StatelessWidget {
 class SingleListWidget<T> extends StatefulWidget {
   final List<T> items;
   final ItemBuilder<T> itemBuilder;
-  final tag;
-  final dynamic argument;
+  final String tag;
   final bool keepAlive;
   final bool refreshable;
   final bool useEmptyWidget;
@@ -353,7 +358,6 @@ class SingleListWidget<T> extends StatefulWidget {
   SingleListWidget(
       {required this.items,
       required this.itemBuilder,
-      this.argument,
       this.tag: '',
       this.keepAlive: true,
       this.refreshable: true,
@@ -391,8 +395,7 @@ class _SingleListState<T> extends State<SingleListWidget<T>>
             .entries
             .map((e) => Container(
                 key: ValueKey(e.value),
-                child:
-                    widget.itemBuilder(e.value, e.key, arg: widget.argument)))
+                child: widget.itemBuilder(e.value, e.key)))
             .toList(),
         onReorder: (int oldIndex, int newIndex) {
           if (oldIndex < newIndex) {
@@ -411,8 +414,10 @@ class _SingleListState<T> extends State<SingleListWidget<T>>
         physics: widget.physics,
         // controller: _scrollController,
         itemBuilder: (context, index) {
-          return widget.itemBuilder(widget.items[index], index,
-              arg: widget.argument);
+          return widget.itemBuilder(
+            widget.items[index],
+            index,
+          );
         },
         itemCount: widget.items.length,
       );

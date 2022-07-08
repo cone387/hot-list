@@ -143,7 +143,11 @@ class _SbscribeState extends State<SubscribePage>
               title: const Text("订阅"),
               centerTitle: true,
               actions: [
-                IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
+                IconButton(
+                    onPressed: () {
+                      Get.toNamed(Routes.search);
+                    },
+                    icon: const Icon(Icons.search)),
                 ToHistoryButton(),
               ],
               bottom: tabBar,

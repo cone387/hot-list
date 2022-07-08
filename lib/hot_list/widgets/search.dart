@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:hot_list/common/widgets/image.dart';
+import 'package:hot_list/hot_list/entities/subscribe.dart';
+import 'package:hot_list/common/extensions/datetime.dart';
+
+import 'browse.dart';
 
 class AppBarSearch extends StatefulWidget implements PreferredSizeWidget {
   const AppBarSearch({
@@ -10,6 +15,8 @@ class AppBarSearch extends StatefulWidget implements PreferredSizeWidget {
     this.value,
     this.leading,
     this.suffix,
+    this.bottom,
+    this.automaticallyImplyLeading = true,
     this.actions = const [],
     this.hintText,
     this.onTap,
@@ -23,6 +30,10 @@ class AppBarSearch extends StatefulWidget implements PreferredSizeWidget {
   final TextEditingController? controller;
 
   final bool toSearchPage;
+
+  final PreferredSizeWidget? bottom;
+
+  final bool automaticallyImplyLeading;
 
   // 默认值
   final String? value;
@@ -53,10 +64,10 @@ class AppBarSearch extends StatefulWidget implements PreferredSizeWidget {
   final ValueChanged? onSearch;
 
   @override
-  _AppBarSearchState createState() => _AppBarSearchState();
+  State<AppBarSearch> createState() => _AppBarSearchState();
 
   @override
-  Size get preferredSize => Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
 class _AppBarSearchState extends State<AppBarSearch> {
@@ -97,7 +108,7 @@ class _AppBarSearchState extends State<AppBarSearch> {
     if (_controller.text.isNotEmpty) {
       return GestureDetector(
         onTap: _onClearInput,
-        child: SizedBox(
+        child: const SizedBox(
           width: 40,
           height: 40,
           child: Icon(
@@ -109,7 +120,7 @@ class _AppBarSearchState extends State<AppBarSearch> {
       );
     }
     return widget.suffix ??
-        SizedBox(
+        const SizedBox(
           width: 0,
         );
   }
@@ -122,7 +133,7 @@ class _AppBarSearchState extends State<AppBarSearch> {
         child: Container(
           width: 48,
           alignment: Alignment.center,
-          child: Text(
+          child: const Text(
             '取消',
             style: TextStyle(color: Color(0xFF666666), fontSize: 15),
           ),
@@ -136,27 +147,23 @@ class _AppBarSearchState extends State<AppBarSearch> {
 
   @override
   Widget build(BuildContext context) {
-    final ScaffoldState scaffold = Scaffold.of(context);
-    // final ModalRoute<dynamic> parentRoute = ModalRoute.of(context);
-    // final bool canPop = parentRoute.canPop ?? false;
-    // final bool hasDrawer = scaffold?.hasDrawer ?? false;
-    bool canPop = false;
-    bool hasDrawer = false;
+    final ModalRoute<Object?>? parentRoute = ModalRoute.of(context);
+    final bool canPop = parentRoute?.canPop ?? false;
     double left = 0;
     double right = 0;
-    if (!canPop && !hasDrawer && widget.leading == null) left = 15;
+    if (!canPop && widget.leading == null) left = 15;
     if (_controller.text.isEmpty && widget.actions.isEmpty) right = 15;
     return AppBar(
       elevation: 0,
       titleSpacing: 0,
       // 藏返回按钮
-      automaticallyImplyLeading: false,
+      automaticallyImplyLeading: widget.automaticallyImplyLeading,
       leading: widget.leading,
-      backgroundColor: Color.fromRGBO(250, 250, 250, 0),
+      backgroundColor: const Color.fromRGBO(250, 250, 250, 0),
       title: Container(
         margin: EdgeInsets.only(right: right, left: left),
         decoration: BoxDecoration(
-          color: Color(0xFFF2F2F2),
+          color: const Color(0xFFF2F2F2),
           borderRadius: BorderRadius.circular(20),
         ),
         // constraints: BoxConstraints(
@@ -165,16 +172,16 @@ class _AppBarSearchState extends State<AppBarSearch> {
         // ),
         child: Row(
           children: [
-            SizedBox(
+            const SizedBox(
               // width: 40,
               // height: 40,
               child: Padding(
+                  padding: EdgeInsets.only(left: 15),
                   child: Icon(
                     Icons.search,
                     size: 24,
                     color: Color(0xFF999999),
-                  ),
-                  padding: EdgeInsets.only(left: 15)),
+                  )),
             ),
             Expanded(
               child: TextField(
@@ -185,13 +192,13 @@ class _AppBarSearchState extends State<AppBarSearch> {
                     border: InputBorder.none,
                     isDense: true,
                     hintText: widget.hintText ?? '请输入关键字',
-                    hintStyle: TextStyle(
+                    hintStyle: const TextStyle(
                       fontSize: 15,
                       color: Color(0xFF999999),
                     ),
                     contentPadding:
-                        EdgeInsets.symmetric(vertical: 8, horizontal: 5)),
-                style: TextStyle(
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 5)),
+                style: const TextStyle(
                   fontSize: 15,
                   color: Colors.red, //Color(0xFF333333),
                   height: 1.3,
@@ -206,7 +213,7 @@ class _AppBarSearchState extends State<AppBarSearch> {
           ],
         ),
       ),
-
+      bottom: widget.bottom,
       actions: _actions(),
     );
   }

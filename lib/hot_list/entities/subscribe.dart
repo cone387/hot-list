@@ -1,6 +1,7 @@
 import 'package:hot_list/common/commont.dart';
 import 'package:hot_list/common/utils/url.dart';
 import 'package:hot_list/global.dart';
+import 'package:hot_list/hot_list/controllers/browse.dart';
 import 'package:hot_list/hot_list/controllers/subscribe.dart';
 
 class CategoryEntity extends IdSerializable {
@@ -34,20 +35,28 @@ class CategoryEntity extends IdSerializable {
 class DataEntity extends IdSerializable {
   late String title;
   late String url;
-  late int subId = 0;
+  late int subscribeId = 0;
   int pos = 0;
   String? tag;
   String? image;
   Subscribe subscribe;
+  late DateTime createTime;
+  late DateTime updateTime;
 
-  DataEntity.fromJson(Json data, this.subscribe) {
-    id = data['id'];
-    title = data['title'];
-    url = data['url'];
-    tag = data['tag'];
-    image = data['image'];
-    subId = data['subscribe'];
-    pos = data['crawl_pos'];
+  bool _isBrowsed = false;
+  bool _isCollected = false;
+  final Map<String, Function()> _notifyListeners = {};
+
+  DataEntity.fromJson(Json json, this.subscribe) {
+    id = json['id'];
+    title = json['title'];
+    url = json['url'];
+    tag = json['tag'];
+    image = json['image'];
+    subscribeId = json['subscribe_id'] ?? 0;
+    pos = json['crawl_pos'];
+    createTime = DateTime.parse(json['create_time']);
+    updateTime = DateTime.parse(json['update_time']);
   }
 
   @override
@@ -58,15 +67,50 @@ class DataEntity extends IdSerializable {
       'url': url,
       'tag': tag,
       'image': image,
-      'id': id,
-      'subscribe': subId,
+      'subscribe_id': subscribeId,
       'crawl_pos': pos,
+      'create_time': createTime.YYmmddHHMMSS,
+      'update_time': updateTime.YYmmddHHMMSS
     };
   }
 
   @override
   String toString() {
     return "Data(title=$title, tag=$tag)";
+  }
+
+  bool get isBrowsed {
+    if (!_isBrowsed) {
+      _isBrowsed = BrowseHistoryController()
+          .contains(BrowseRecord(data: this, subscribe: subscribe));
+    }
+    return _isBrowsed;
+  }
+
+  listenChange(name, Function() listener) {
+    _notifyListeners[name] = listener;
+  }
+
+  set isBrowsed(bool value) {
+    if (value != _isBrowsed) {
+      _isBrowsed = value;
+      _notifyListeners['isBrowsed']?.call();
+    }
+  }
+
+  bool get isCollected {
+    if (!_isCollected) {
+      _isCollected = BrowseCollectionController()
+          .contains(BrowseRecord(data: this, subscribe: subscribe));
+    }
+    return _isCollected;
+  }
+
+  set isCollected(bool value) {
+    if (value != _isCollected) {
+      _isCollected = value;
+      _notifyListeners['isCollected']?.call();
+    }
   }
 }
 

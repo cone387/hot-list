@@ -18,7 +18,7 @@ class LoginPage extends StatelessWidget {
             onLoginSuccess: (json) {
               // DateTodoController().setDate(DateTime.now(), refresh: true);
               // Get.offAllNamed(Routes.home);
-              Get.offAndToNamed(Routes.home);
+              Get.offAllNamed(Routes.home);
             }),
         LoginProvider(
             name: "钉钉登录",
@@ -27,7 +27,7 @@ class LoginPage extends StatelessWidget {
             onLoginSuccess: (json) {
               // DateTodoController().setDate(DateTime.now(), refresh: true);
               // Get.offAllNamed(Routes.home);
-              Get.offAndToNamed(Routes.home);
+              Get.offAllNamed(Routes.home);
             })
       ],
     );

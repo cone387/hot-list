@@ -5,6 +5,7 @@ import 'package:hot_list/hot_list/pages/browse.dart';
 import 'package:hot_list/hot_list/pages/expolre.dart';
 import 'package:hot_list/hot_list/pages/home.dart';
 import 'package:hot_list/hot_list/pages/login.dart';
+import 'package:hot_list/hot_list/pages/search.dart';
 import 'package:hot_list/hot_list/pages/splash.dart';
 import 'package:hot_list/hot_list/pages/usage.dart';
 import 'package:hot_list/hot_list/widgets/subscribe.dart';
@@ -36,7 +37,7 @@ class Routes {
       // register: (context)=>RegisterView(),
       usage: (context) => const UsagePage(),
       explore: (context) => const ExplorePage(),
-      // search: (context)=>SearchView(),
+      search: (context) => const SearchPage(),
       browseHistory: (context) => const BrowseHistoryPage(),
       browseCollection: (context) => const BrowseCollectionPage(),
       subscribeDetail: (context) {

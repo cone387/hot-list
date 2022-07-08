@@ -5,6 +5,7 @@ import 'package:hot_list/hot_list/pages/subscribe.dart';
 import 'package:hot_list/hot_list/widgets/category.dart';
 import 'package:hot_list/hot_list/widgets/search.dart';
 import 'package:hot_list/hot_list/widgets/subscribe.dart';
+import 'package:hot_list/route.dart';
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({Key? key}) : super(key: key);
@@ -56,7 +57,11 @@ class _ExploreState extends State<ExplorePage>
             appBar: AppBar(
               title: const Text("发现"),
               actions: [
-                IconButton(onPressed: () {}, icon: const Icon(Icons.search))
+                IconButton(
+                    onPressed: () {
+                      Get.toNamed(Routes.search);
+                    },
+                    icon: const Icon(Icons.search))
               ],
               bottom: tabBar,
             ),

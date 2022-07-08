@@ -32,17 +32,42 @@ Widget SubscribeManageButton() {
       });
 }
 
-class CollectionButton extends StatelessWidget {
+class CollectionButton extends StatefulWidget {
   final BrowseRecord record;
 
   const CollectionButton({Key? key, required this.record}) : super(key: key);
 
   @override
+  State<CollectionButton> createState() => _CollectionButtonState();
+}
+
+class _CollectionButtonState extends State<CollectionButton> {
+  @override
+  void initState() {
+    super.initState();
+    widget.record.data.listenChange(
+        'isCollected',
+        () => setState(
+              () => {},
+            ));
+  }
+
+  @override
   Widget build(BuildContext context) {
+    var data = widget.record.data;
     return IconButton(
-        icon: const Icon(Icons.star_border),
+        icon: data.isCollected
+            ? const Icon(
+                Icons.star,
+                color: Colors.blue,
+              )
+            : const Icon(Icons.star_border),
         onPressed: () {
-          BrowseCollectionController().addItem(record);
+          if (data.isCollected) {
+            BrowseCollectionController().removeItem(widget.record);
+          } else {
+            BrowseCollectionController().addItem(widget.record);
+          }
           // User.addCollection(BrowseRecord(sub, data)).then((value) => Fluttertoast.showToast(msg: "添加到收藏"));
         });
   }
@@ -59,7 +84,10 @@ Widget DataShareButton(context) {
 
 Widget OpenInBrowseButton(DataEntity data) {
   return IconButton(
-      icon: const Icon(Icons.open_in_browser),
+      icon: const Icon(
+        Icons.open_in_browser,
+        color: Colors.blue,
+      ),
       onPressed: () {
         launchUrlString(data.url);
         // Fluttertoast.showToast(msg: "在浏览器中打开");
