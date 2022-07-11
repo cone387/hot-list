@@ -83,7 +83,7 @@ class Global {
   static Env env = Env.debugSimulator;
   static String cdnHost = 'cdn.cone.love';
   static String cdnScheme = 'http';
-  static String cdnBaseUrl = cdnScheme + "://" + cdnHost;
+  static String cdnBaseUrl = "$cdnScheme://$cdnHost";
 
   static String version = 'v1.0.0';
 

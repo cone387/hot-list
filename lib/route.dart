@@ -41,7 +41,7 @@ class Routes {
       browseHistory: (context) => const BrowseHistoryPage(),
       browseCollection: (context) => const BrowseCollectionPage(),
       subscribeDetail: (context) {
-        print("arguments ${Get.arguments}");
+        // web端debug时Get.arguments会丢失
         return SubscriibeDetailWidget(
           subscribe: Get.arguments,
           subscribable: true,

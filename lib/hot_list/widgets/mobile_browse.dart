@@ -2,13 +2,10 @@
 
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
-import 'package:hot_list/common/commont.dart';
-import 'package:hot_list/hot_list/controllers/browse.dart';
 import 'package:hot_list/hot_list/entities/subscribe.dart';
 import 'package:hot_list/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:hot_list/route.dart';
-
 
 void goToDetail({required BrowseRecord record}) {
   logger.d("goto $record");
@@ -23,6 +20,7 @@ class BrowseWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InAppWebView(
+      pullToRefreshController: PullToRefreshController(),
       initialUrlRequest: URLRequest(url: Uri.parse(record.data.url)),
       onWebViewCreated: (controller) {},
       // navigationDelegate: (NavigationRequest request) {

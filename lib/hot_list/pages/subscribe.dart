@@ -68,6 +68,67 @@ class SliverDelegate extends SliverPersistentHeaderDelegate {
   double get minExtent => 40; //widget.preferredSize.height;
 }
 
+class SubscribeTabBar extends StatelessWidget implements PreferredSizeWidget {
+  final List<UserSubscribe> subscribes;
+  final TabController controller;
+  const SubscribeTabBar({
+    Key? key,
+    required this.controller,
+    required this.subscribes,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(children: [
+      Expanded(
+        child: TabBar(
+          controller: controller,
+          isScrollable: true,
+          labelPadding: EdgeInsets.zero,
+          tabs: subscribes
+              .map((e) => Stack(fit: StackFit.passthrough, children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Tab(
+                        // padding: const EdgeInsets.only(top: 10, right: 10),
+                        child: Text(e.name),
+                      ),
+                    ),
+                    Positioned(
+                        right: 4,
+                        top: 0,
+                        child: Container(
+                          width: 20,
+                          height: 20,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: Colors.orange,
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: const Text(
+                            "19",
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        ))
+                  ]))
+              .toList(),
+          indicatorColor: Colors.red,
+          unselectedLabelColor: Colors.black,
+          labelColor: Colors.red,
+        ),
+      ),
+      IconButton(
+          onPressed: () {
+            Get.toNamed(Routes.subscribeManage);
+          },
+          icon: const Icon(Icons.menu))
+    ]);
+  }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+}
+
 class SubscribePage extends StatefulWidget {
   const SubscribePage({Key? key}) : super(key: key);
   @override
@@ -96,41 +157,8 @@ class _SbscribeState extends State<SubscribePage>
           tabController.addListener(() {
             current = controller.items[tabController.index];
           });
-          TabBar tabBar = TabBar(
-            controller: tabController,
-            isScrollable: true,
-            labelPadding: EdgeInsets.zero,
-            tabs: controller.items
-                .map((e) => Stack(fit: StackFit.passthrough, children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Tab(
-                          // padding: const EdgeInsets.only(top: 10, right: 10),
-                          child: Text(e.name),
-                        ),
-                      ),
-                      Positioned(
-                          right: 4,
-                          top: 0,
-                          child: Container(
-                            width: 20,
-                            height: 20,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: Colors.orange,
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: const Text(
-                              "19",
-                              style: TextStyle(color: Colors.black),
-                            ),
-                          ))
-                    ]))
-                .toList(),
-            indicatorColor: Colors.red,
-            unselectedLabelColor: Colors.black,
-            labelColor: Colors.red,
-          );
+          SubscribeTabBar tabBar = SubscribeTabBar(
+              controller: tabController, subscribes: controller.items);
 
           Widget tabView = TabBarView(
               controller: tabController,

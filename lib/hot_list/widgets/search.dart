@@ -1,9 +1,41 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
-import 'package:hot_list/common/widgets/image.dart';
-import 'package:hot_list/hot_list/entities/subscribe.dart';
 import 'package:hot_list/common/extensions/datetime.dart';
+import 'package:hot_list/common/widgets/image.dart';
+import 'package:hot_list/hot_list/controllers/search.dart';
+import 'package:hot_list/hot_list/entities/subscribe.dart';
+import 'package:hot_list/hot_list/widgets/subscribe.dart';
 
 import 'browse.dart';
+
+class SearchDataTile extends StatelessWidget {
+  final DataEntity data;
+  final int? index;
+  const SearchDataTile({
+    Key? key,
+    required this.data,
+    this.index,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      onTap: () {
+        goToDetail(record: BrowseRecord(data: data));
+      },
+      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      leading: buildRectWidget(
+          radius: 10, child: buildImageWidget(data.subscribe.imageUrl)),
+      title: Text(data.title),
+      subtitle: Padding(
+        padding: const EdgeInsets.only(top: 8.0),
+        child: Text(data.subscribe.name),
+      ),
+      trailing: Text(data.createTime.smartFormat),
+    );
+  }
+}
 
 class AppBarSearch extends StatefulWidget implements PreferredSizeWidget {
   const AppBarSearch({
@@ -215,6 +247,87 @@ class _AppBarSearchState extends State<AppBarSearch> {
       ),
       bottom: widget.bottom,
       actions: _actions(),
+    );
+  }
+}
+
+class AllSearchResultWidget extends StatelessWidget {
+  final SearchController controller;
+  final int maxCount = 5;
+  const AllSearchResultWidget({Key? key, required this.controller})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    List<Widget> items = [
+      const ListTile(
+        title: Text(
+          '数据',
+          style: TextStyle(color: Colors.black87),
+        ),
+      ),
+      ...controller.dataController.items
+          .sublist(0, min(controller.dataController.items.length, maxCount))
+          .map((element) => SearchDataTile(data: element))
+          .toList(),
+      if (controller.subscribeController.items.length > 5)
+        ListTile(
+          textColor: Colors.blue,
+          iconColor: Colors.blue,
+          leading: const Icon(Icons.search),
+          title: const Text(
+            "更多",
+          ),
+          trailing: const Icon(
+            Icons.arrow_forward_ios,
+            size: 17,
+          ),
+          onTap: () {
+            controller.searchType.value = SearchType.data;
+          },
+        ),
+      // Container(
+      //   height: 20,
+      //   color: Colors.white,
+      // ),
+      const ListTile(
+        title: Text("订阅"),
+      ),
+      ...controller.subscribeController.items
+          .sublist(
+              0, min(controller.subscribeController.items.length, maxCount))
+          .map((element) => SubscribeTile(subscribe: element))
+          .toList(),
+      if (controller.dataController.items.length > 5)
+        ListTile(
+          textColor: Colors.blue,
+          iconColor: Colors.blue,
+          leading: const Icon(Icons.search),
+          title: const Text(
+            "更多",
+          ),
+          trailing: const Icon(
+            Icons.arrow_forward_ios,
+            size: 17,
+          ),
+          onTap: () {
+            controller.searchType.value = SearchType.subscribe;
+          },
+        ),
+    ];
+    return ListView.separated(
+      shrinkWrap: true,
+      itemBuilder: (context, index) {
+        return items[index];
+      },
+      separatorBuilder: (context, index) {
+        return const Divider(
+          height: 0.5,
+          indent: 70,
+          color: Colors.black26,
+        );
+      },
+      itemCount: items.length,
     );
   }
 }

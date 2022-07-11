@@ -268,9 +268,6 @@ mixin CacheableListMixin<T extends Serializable> on ListController<T> {
   String get key;
 
   @override
-  T decoder(Json json);
-
-  @override
   loadInitItems() async => await readCachedItems();
 
   writeItemsToCache(List<T> objects) async {

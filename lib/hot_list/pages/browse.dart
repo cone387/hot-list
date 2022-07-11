@@ -21,19 +21,42 @@ class BrowseDetailPage extends StatefulWidget {
 class _BrowseDetailState extends State<BrowseDetailPage> {
   @override
   Widget build(BuildContext context) {
+    // 待解决：nested scroll view与webview冲突
+    // return Scaffold(
+    //   body: NestedScrollView(
+    //     controller: ScrollController(),
+    //     headerSliverBuilder: (context, innerBoxIsScrolled) {
+    //       return [
+    //         SliverAppBar(
+    //           floating: false,
+    //           // pinned: true,
+    //           automaticallyImplyLeading: true,
+    //           // backgroundColor: const Color.fromRGBO(250, 250, 250, 1),
+    //           title: Text(widget._record.data.title),
+    //           actions: [
+    //             CollectionButton(record: widget._record),
+    //             OpenInBrowseButton(widget._record.data),
+    //             DataShareButton(context)
+    //           ],
+    //         ),
+    //       ];
+    //     },
+    //     body: BrowseWidget(
+    //       record: widget._record,
+    //     ),
+    //   ),
+    // );
     return Scaffold(
         appBar: AppBar(
           title: Text(widget._record.data.title),
           actions: [
             CollectionButton(record: widget._record),
             OpenInBrowseButton(widget._record.data),
-            DataShareButton(context)
           ],
         ),
         body: BrowseWidget(
           record: widget._record,
         )
-        // floatingActionButton: FloatingActionButton(onPressed: (){}, child: Text("hello")),
         );
   }
 }
@@ -50,7 +73,7 @@ class BrowseCollectionPage extends StatelessWidget {
       body: RichListWidget<BrowseRecord>(
         controller: BrowseCollectionController(),
         itemBuilder: (item, index) => RecordTile(
-          data: item.data,
+          record: item,
           index: index,
         ),
       ),
@@ -70,7 +93,7 @@ class BrowseHistoryPage extends StatelessWidget {
       body: RichListWidget<BrowseRecord>(
         controller: BrowseHistoryController(),
         itemBuilder: (item, index) => RecordTile(
-          data: item.data,
+          record: item,
           index: index,
         ),
       ),

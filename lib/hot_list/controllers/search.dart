@@ -5,9 +5,13 @@ import 'package:hot_list/hot_list/api.dart';
 import 'package:hot_list/hot_list/entities/subscribe.dart';
 
 class DataSearchController extends HttpPagedListController<DataEntity> {
-  final String? q;
-  DataSearchController({required this.q, List<DataEntity>? initItems})
-      : super(initItems: initItems);
+  String? q;
+  DataSearchController({this.q, List<DataEntity>? initItems})
+      : super(initItems: initItems, autoRefresh: false);
+
+  void setQuery(String? q) {
+    this.q = q;
+  }
 
   @override
   DataEntity decoder(Json json) {
@@ -22,13 +26,17 @@ class DataSearchController extends HttpPagedListController<DataEntity> {
 }
 
 class SubscribeSearchController extends HttpPagedListController<Subscribe> {
-  final String? q;
-  SubscribeSearchController({required this.q, List<Subscribe>? initItems})
-      : super(initItems: initItems);
+  String? q;
+  SubscribeSearchController({this.q, List<Subscribe>? initItems})
+      : super(initItems: initItems, autoRefresh: false);
 
   @override
   Subscribe decoder(Json json) {
     return Subscribe.fromJson(json);
+  }
+
+  void setQuery(String? q) {
+    this.q = q;
   }
 
   @override
@@ -38,16 +46,26 @@ class SubscribeSearchController extends HttpPagedListController<Subscribe> {
   Json get listParams => {"fields": "sub", "q": q, ...super.listParams};
 }
 
+enum SearchType { all, data, subscribe }
+
 class SearchController {
   final isSearching = true.obs;
+  final Rx<SearchType> searchType = SearchType.all.obs;
   final String? keyword;
-  DataSearchController? dataController;
-  SubscribeSearchController? subscribeController;
+  final DataSearchController dataController = DataSearchController();
+  final SubscribeSearchController subscribeController =
+      SubscribeSearchController();
 
   SearchController({this.keyword});
 
   Future<bool> search({String? keyword}) async {
+    isSearching.value = true;
+    searchType.value = SearchType.all;
     String? q = keyword ?? this.keyword;
+    subscribeController.items.clear();
+    dataController.items.clear();
+    subscribeController.setQuery(q);
+    dataController.setQuery(q);
     var response = await Requests.get(API.search, params: {
       'q': q,
     });
@@ -65,9 +83,8 @@ class SearchController {
             element, Subscribe.fromJson(element['subscribe'])));
       }
     }
-    subscribeController =
-        SubscribeSearchController(q: q, initItems: subscribeList);
-    dataController = DataSearchController(q: q, initItems: dataList);
+    subscribeController.setItems(subscribeList);
+    dataController.setItems(dataList);
     isSearching.value = false;
     return false;
   }

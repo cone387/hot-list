@@ -79,6 +79,8 @@ class BrowseHistoryController
     return items.contains(record);
   }
 
+  
+
   @override
   Future<String?> addItem(BrowseRecord item) {
     item.data.isBrowsed = true;

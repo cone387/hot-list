@@ -17,10 +17,7 @@ class UserSubscribeControler extends HttpRichListController<UserSubscribe>
 
   static UserSubscribeControler? _instance;
   factory UserSubscribeControler() {
-    // _instance ??= UserSubscribeControler._(initItems: GlobalUser.subscribes);
-    if (_instance == null) {
-      _instance = UserSubscribeControler._(initItems: GlobalUser.subscribes);
-    }
+    _instance ??= UserSubscribeControler._(initItems: GlobalUser.subscribes);
     return _instance!;
   }
 
@@ -114,6 +111,25 @@ class DataSubscribeController extends HttpCacheableListController<DataEntity> {
 
   sort() {
     items.sort((a, b) => a.pos.compareTo(b.pos));
+  }
+
+  bool isNewItem(DataEntity data) {
+    return !cachedItems.contains(data);
+  }
+
+  bool isItemBrowsed(DataEntity data) {
+    if (data.isBrowsed) {
+      return true;
+    }
+    DataEntity? oldItem = cachedItems.firstWhereOrNull((element) => false);
+    if (oldItem != null) {
+      return oldItem.isBrowsed;
+    }
+    return false;
+  }
+
+  setItemBrowsed(DataEntity data) {
+    toCahce(items);
   }
 
   @override

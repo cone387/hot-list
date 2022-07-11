@@ -81,8 +81,7 @@ class DataEntity extends IdSerializable {
 
   bool get isBrowsed {
     if (!_isBrowsed) {
-      _isBrowsed = BrowseHistoryController()
-          .contains(BrowseRecord(data: this, subscribe: subscribe));
+      _isBrowsed = BrowseHistoryController().contains(BrowseRecord(data: this));
     }
     return _isBrowsed;
   }
@@ -100,8 +99,8 @@ class DataEntity extends IdSerializable {
 
   bool get isCollected {
     if (!_isCollected) {
-      _isCollected = BrowseCollectionController()
-          .contains(BrowseRecord(data: this, subscribe: subscribe));
+      _isCollected =
+          BrowseCollectionController().contains(BrowseRecord(data: this));
     }
     return _isCollected;
   }
@@ -111,6 +110,13 @@ class DataEntity extends IdSerializable {
       _isCollected = value;
       _notifyListeners['isCollected']?.call();
     }
+  }
+
+  @override
+  // ignore: hash_and_equals
+  bool operator ==(Object other) {
+    return (identical(this, other)) ||
+        (other is DataEntity && other.id == id && subscribe.id == other.subscribe.id);
   }
 }
 
@@ -232,8 +238,9 @@ class BrowseRecord extends IdSerializable {
   late String title;
   DateTime browseTime = DateTime.now();
 
-  BrowseRecord({required this.subscribe, required this.data})
-      : title = "[${subscribe.name}]${data.title}";
+  BrowseRecord({required this.data})
+      : subscribe = data.subscribe,
+        title = data.title;
 
   BrowseRecord.fromJson(json) {
     subscribe = Subscribe.fromJson(json['subscribe']);
@@ -262,18 +269,8 @@ class BrowseRecord extends IdSerializable {
   @override
   // ignore: hash_and_equals
   bool operator ==(Object other) {
-    bool v = false;
-    if (identical(this, other)) {
-      v = true;
-    }
-    ;
-    if (other is BrowseRecord) {
-      v = other.subscribe.id == subscribe.id && other.data.id == data.id;
-    }
-    if (v) {
-      return v;
-    }
-    return v;
+    return (identical(this, other)) ||
+        (other is BrowseRecord && other.data == data);
   }
 }
 

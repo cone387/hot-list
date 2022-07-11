@@ -3,8 +3,6 @@ import 'package:hot_list/common/commont.dart';
 import 'package:hot_list/common/controllers/list.dart';
 import 'package:hot_list/hot_list/controllers/search.dart';
 import 'package:hot_list/hot_list/entities/subscribe.dart';
-import 'package:hot_list/hot_list/pages/browse.dart';
-import 'package:hot_list/hot_list/widgets/browse.dart';
 import 'package:hot_list/hot_list/widgets/search.dart';
 import 'package:hot_list/hot_list/widgets/subscribe.dart';
 
@@ -15,19 +13,12 @@ class SearchPage extends StatefulWidget {
   State<SearchPage> createState() => _SearchPageState();
 }
 
-class _SearchPageState extends State<SearchPage> {
+class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
   final controller = SearchController();
-
-  Widget allSearchResult() {
-    return ListView.builder(
-      itemCount: 10,
-      itemBuilder: (context, index) {
-        return ListTile(
-          title: Text('$index'),
-        );
-      },
-    );
-  }
+  late final TabController tabController = TabController(
+      initialIndex: controller.searchType.value.index,
+      length: SearchType.values.length,
+      vsync: this);
 
   @override
   Widget build(BuildContext context) {
@@ -45,14 +36,16 @@ class _SearchPageState extends State<SearchPage> {
               List.generate(3, (index) => const Center(child: Text('搜索中')));
         } else {
           children = [
-            allSearchResult(),
+            AllSearchResultWidget(
+              controller: controller,
+            ),
             RichListWidget<DataEntity>(
-              controller: controller.dataController!,
+              controller: controller.dataController,
               itemBuilder: (
                 data,
                 index,
               ) {
-                return RecordTile(data: data, index: index);
+                return SearchDataTile(data: data, index: index);
               },
               separatedBuilder: (data, index) {
                 return const Divider(
@@ -60,29 +53,30 @@ class _SearchPageState extends State<SearchPage> {
               },
             ),
             RichListWidget<Subscribe>(
-              controller: controller.subscribeController!,
+              controller: controller.subscribeController,
               itemBuilder: (subscribe, index, {arg}) {
                 return SubscribeTile(subscribe: subscribe, index: index);
               },
             ),
           ];
         }
-        return DefaultTabController(
-          initialIndex: 0,
-          length: 3,
-          child: Column(children: [
-            const TabBar(
-                indicatorColor: Colors.red,
-                unselectedLabelColor: Colors.black,
-                labelColor: Colors.red,
-                tabs: [
-                  Tab(text: '全部'),
-                  Tab(text: '数据'),
-                  Tab(text: '订阅'),
-                ]),
-            Expanded(child: TabBarView(children: children))
-          ]),
-        );
+        if (tabController.index != controller.searchType.value.index) {
+          tabController.animateTo(controller.searchType.value.index);
+        }
+        return Column(children: [
+          TabBar(
+              controller: tabController,
+              indicatorColor: Colors.red,
+              unselectedLabelColor: Colors.black,
+              labelColor: Colors.red,
+              tabs: const [
+                Tab(text: '全部'),
+                Tab(text: '数据'),
+                Tab(text: '订阅'),
+              ]),
+          Expanded(
+              child: TabBarView(controller: tabController, children: children))
+        ]);
       }),
     );
   }
