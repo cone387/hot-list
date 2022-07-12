@@ -3,7 +3,9 @@ import 'package:hot_list/common/controllers/mixin.dart';
 import 'package:hot_list/common/entities/types.dart';
 import 'package:hot_list/common/http/requests.dart';
 import 'package:hot_list/hot_list/api.dart';
+import 'package:hot_list/hot_list/controllers/setting.dart';
 import 'package:hot_list/hot_list/controllers/user.dart';
+import 'package:hot_list/hot_list/entities/setting.dart';
 import 'package:hot_list/hot_list/entities/subscribe.dart';
 import 'package:hot_list/hot_list/requests.dart';
 
@@ -121,20 +123,32 @@ class DataSubscribeController extends HttpCacheableListController<DataEntity> {
     if (data.isBrowsed) {
       return true;
     }
-    DataEntity? oldItem = cachedItems.firstWhereOrNull((element) => false);
+    DataEntity? oldItem =
+        cachedItems.firstWhereOrNull((element) => data == element);
     if (oldItem != null) {
       return oldItem.isBrowsed;
     }
     return false;
   }
 
+  @override
+  void setItems(List<DataEntity> objects) {
+    super.setItems(objects);
+    SettingController.updateSetting(subscribe.browsedTimesObsKey, notBrowsedCount);
+  }
+
+  int get notBrowsedCount {
+    return items.where((element) => !isItemBrowsed(element)).length;
+  }
+
   setItemBrowsed(DataEntity data) {
+    SettingController.updateSetting(subscribe.browsedTimesObsKey, notBrowsedCount);
     toCahce(items);
   }
 
   @override
   onItemsInitialized() {
-    sort();
+    // sort();
     update();
   }
 

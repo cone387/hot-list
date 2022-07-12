@@ -20,7 +20,6 @@ class RichListWidget<T> extends StatefulWidget {
   final bool initRefresh;
   final Axis scrollDirection;
   final ScrollController? scrollController;
-  final bool Function(T)? ietmFilter;
   final bool Function(T)? itemFilter;
   final ScrollPhysics physics;
   final Function(T sourceItem, T targetItem)? onPositionChanged;
@@ -46,7 +45,6 @@ class RichListWidget<T> extends StatefulWidget {
       this.itemFilter,
       this.emptyWidget,
       this.scrollController,
-      this.ietmFilter,
       this.separatedBuilder,
       this.scrollDirection: Axis.vertical,
       this.onPositionChanged})

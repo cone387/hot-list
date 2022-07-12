@@ -3,6 +3,7 @@ import 'package:hot_list/common/utils/url.dart';
 import 'package:hot_list/global.dart';
 import 'package:hot_list/hot_list/controllers/browse.dart';
 import 'package:hot_list/hot_list/controllers/subscribe.dart';
+import 'package:hot_list/hot_list/entities/setting.dart';
 
 class CategoryEntity extends IdSerializable {
   late String name;
@@ -55,6 +56,8 @@ class DataEntity extends IdSerializable {
     image = json['image'];
     subscribeId = json['subscribe_id'] ?? 0;
     pos = json['crawl_pos'];
+    _isBrowsed = json['is_browsed'] ?? false;
+    _isCollected = json['is_collected'] ?? false;
     createTime = DateTime.parse(json['create_time']);
     updateTime = DateTime.parse(json['update_time']);
   }
@@ -69,6 +72,8 @@ class DataEntity extends IdSerializable {
       'image': image,
       'subscribe_id': subscribeId,
       'crawl_pos': pos,
+      'is_browsed': _isBrowsed,
+      'iscoverted': _isCollected,
       'create_time': createTime.YYmmddHHMMSS,
       'update_time': updateTime.YYmmddHHMMSS
     };
@@ -87,7 +92,7 @@ class DataEntity extends IdSerializable {
   }
 
   listenChange(name, Function() listener) {
-    _notifyListeners[name] = listener;
+    _notifyListeners[name] ??= listener;
   }
 
   set isBrowsed(bool value) {
@@ -116,7 +121,9 @@ class DataEntity extends IdSerializable {
   // ignore: hash_and_equals
   bool operator ==(Object other) {
     return (identical(this, other)) ||
-        (other is DataEntity && other.id == id && subscribe.id == other.subscribe.id);
+        (other is DataEntity &&
+            other.id == id &&
+            subscribe.id == other.subscribe.id);
   }
 }
 
@@ -157,10 +164,11 @@ class Subscribe extends IdSerializable {
   String? image;
   late WebSite site;
   List<DataEntity> dataList = [];
+  
+  late SettingKey browsedTimesObsKey = SettingKey('subscribe<$id>browsed-times-changed', value: 0);
 
   Subscribe();
 
-  // String get name => customName ?? subName;
   String get imageUrl => urlJoin(Global.cdnBaseUrl, (image ?? site.image));
 
   Subscribe.fromJson(Map<String, dynamic> data) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hot_list/common/entities/oauth.dart';
+import 'package:hot_list/hot_list/controllers/setting.dart';
 import 'package:hot_list/hot_list/controllers/subscribe.dart';
 import 'package:hot_list/hot_list/controllers/user.dart';
 import 'package:hot_list/logger.dart';
@@ -80,7 +81,7 @@ class Global {
   static bool isSimulator = true;
   static String appName = 'HotList';
   // static Env env = Env.releaseDomainTX;
-  static Env env = Env.debugSimulator;
+  static Env env = Env.releaseIpTX;
   static String cdnHost = 'cdn.cone.love';
   static String cdnScheme = 'http';
   static String cdnBaseUrl = "$cdnScheme://$cdnHost";
@@ -104,6 +105,7 @@ class Global {
 
   static Future init() async {
     await Requests.init(host: env.host, https: !debug);
+    await SettingController.isItemInitialized;
     await UserController.isItemInitialized;
     await UserController.refreshItem();
     isInitialized = true;

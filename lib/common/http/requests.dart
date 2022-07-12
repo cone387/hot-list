@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 
 import '../logger.dart';
-import 'response.dart';
-import 'package:dio/dio.dart' hide Response;
+import 'package:dio/dio.dart';
+import 'response.dart' as response;
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:path_provider/path_provider.dart';
@@ -72,83 +72,101 @@ class BaseRequests {
     }
   }
 
-  Future<Response> get(path,
+  Future<response.Response> get(path,
       {bool? https, String? host, Json? params, Json? headers}) async {
     var url = Requests.getUri(path, host: host, https: https, params: params);
     logger.d("start get $url");
-    var dioResponse;
+    Response dioResponse;
     try {
       dioResponse = await dio.getUri(url, options: getOptions(headers));
     } on DioError catch (e) {
       logger.e("exception on get $url, status: ${e.response?.statusCode}");
-      dioResponse = e.response?? dioResponse;
+      dioResponse = e.response ?? response.NETWORK_ERROR_RESPONSE;
+    } catch (e) {
+      logger.e(
+          "exception on get $url, status: ${response.REQUEST_ERROR_RESPONSE.statusCode}");
+      dioResponse = response.REQUEST_ERROR_RESPONSE;
     }
     logger.d("end get $url");
-    return Response(dioResponse);
+    return response.Response(dioResponse);
   }
 
-  Future<Response> post(path,
+  Future<response.Response> post(path,
       {String? host, bool? https, dynamic body, Json? headers}) async {
     var url = Requests.getUri(path, https: https, host: host);
     logger.d("start post $url");
-    var dioResponse;
+    Response dioResponse;
     try {
       dioResponse =
           await dio.postUri(url, data: body, options: getOptions(headers));
     } on DioError catch (e) {
-      // logger.e(e);
-      // logger.e(body);
-      dioResponse = e.response;
+      logger.e("exception on get $url, status: ${e.response?.statusCode}");
+      dioResponse = e.response ?? response.NETWORK_ERROR_RESPONSE;
+    } catch (e) {
+      logger.e(
+          "exception on get $url, status: ${response.REQUEST_ERROR_RESPONSE.statusCode}");
+      dioResponse = response.REQUEST_ERROR_RESPONSE;
     }
     logger.d("end post $url");
-    return Response(dioResponse);
+    return response.Response(dioResponse);
   }
 
-  Future<Response> put(path,
+  Future<response.Response> put(path,
       {String? host, bool? https, dynamic body, Json? headers}) async {
     var url = Requests.getUri(path, https: https, host: host);
     logger.d("start put $url");
-    var dioResponse;
+    Response dioResponse;
     try {
       dioResponse =
           await dio.putUri(url, data: body, options: getOptions(headers));
     } on DioError catch (e) {
-      logger.e(e);
-      dioResponse = e.response;
+      logger.e("exception on get $url, status: ${e.response?.statusCode}");
+      dioResponse = e.response ?? response.NETWORK_ERROR_RESPONSE;
+    } catch (e) {
+      logger.e(
+          "exception on get $url, status: ${response.REQUEST_ERROR_RESPONSE.statusCode}");
+      dioResponse = response.REQUEST_ERROR_RESPONSE;
     }
     logger.d("end put $url");
-    return Response(dioResponse);
+    return response.Response(dioResponse);
   }
 
-  Future<Response> patch(path,
+  Future<response.Response> patch(path,
       {String? host, bool? https, dynamic body, Json? headers}) async {
     var url = Requests.getUri(path, https: https, host: host);
     logger.d("start put $url");
-    var dioResponse;
+    Response dioResponse;
     try {
       dioResponse =
           await dio.patchUri(url, data: body, options: getOptions(headers));
     } on DioError catch (e) {
-      logger.e(e);
-      dioResponse = e.response;
+      logger.e("exception on get $url, status: ${e.response?.statusCode}");
+      dioResponse = e.response ?? response.NETWORK_ERROR_RESPONSE;
+    } catch (e) {
+      logger.e(
+          "exception on get $url, status: ${response.REQUEST_ERROR_RESPONSE.statusCode}");
+      dioResponse = response.REQUEST_ERROR_RESPONSE;
     }
     logger.d("end put $url");
-    return Response(dioResponse);
+    return response.Response(dioResponse);
   }
 
-  Future<Response> delete(path,
+  Future<response.Response> delete(path,
       {String? host, bool? https, Json? headers}) async {
     var url = Requests.getUri(path, https: https, host: host);
-    var response;
+    Response dioResponse;
     try {
-      response = await dio.deleteUri(url, options: getOptions(headers));
+      dioResponse = await dio.deleteUri(url, options: getOptions(headers));
     } on DioError catch (e) {
-      logger.d("end delete $url");
-      logger.e(e);
-      response = e.response;
+      logger.e("exception on get $url, status: ${e.response?.statusCode}");
+      dioResponse = e.response ?? response.NETWORK_ERROR_RESPONSE;
+    } catch (e) {
+      logger.e(
+          "exception on get $url, status: ${response.REQUEST_ERROR_RESPONSE.statusCode}");
+      dioResponse = response.REQUEST_ERROR_RESPONSE;
     }
     logger.d("end delete $url");
-    return Response(response);
+    return response.Response(dioResponse);
   }
 
   Options getOptions(Json? headers) {

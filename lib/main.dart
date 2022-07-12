@@ -13,7 +13,7 @@ void main() {
     yield LicenseEntryWithLineBreaks(['google_fonts'], license);
   });
 
-  runApp(HotListApp());
+  runApp(const HotListApp());
   if (!kIsWeb && Platform.isIOS) {
     if (kDebugMode) {
       print("backgound task register");
@@ -85,11 +85,6 @@ class HotListState extends State<HotListApp> {
       ),
       routes: Routes.routes,
       initialRoute: Routes.splash,
-      routingCallback: (Routing? route) {
-        // onRouting(route);
-        print(route);
-      },
-      // home: SplashWidget(),
     );
   }
 }

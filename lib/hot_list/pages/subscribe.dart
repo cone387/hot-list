@@ -1,72 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hot_list/common/widgets/image.dart';
-import 'package:hot_list/hot_list/api.dart';
+import 'package:hot_list/hot_list/controllers/setting.dart';
 import 'package:hot_list/hot_list/controllers/subscribe.dart';
+import 'package:hot_list/hot_list/entities/setting.dart';
 import 'package:hot_list/hot_list/entities/subscribe.dart';
 import 'package:hot_list/hot_list/widgets/buttons/browse.dart';
-import 'package:hot_list/hot_list/widgets/search.dart';
+import 'package:hot_list/hot_list/widgets/buttons/setting.dart';
 import 'package:hot_list/hot_list/widgets/subscribe.dart';
-import 'package:hot_list/logger.dart';
 import 'package:hot_list/route.dart';
-
-class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
-  _SliverAppBarDelegate({
-    required this.minHeight,
-    required this.maxHeight,
-    required this.child,
-  });
-
-  final double minHeight;
-  final double maxHeight;
-  final Widget child;
-
-  @override
-  double get minExtent => minHeight;
-
-  @override
-  double get maxExtent => maxHeight > minHeight ? maxHeight : minHeight;
-
-  @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return SizedBox.expand(child: child);
-  }
-
-  @override
-  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
-    return maxHeight != oldDelegate.maxHeight ||
-        minHeight != oldDelegate.minHeight ||
-        child != oldDelegate.child;
-  }
-}
-
-class SliverDelegate extends SliverPersistentHeaderDelegate {
-  final Widget widget;
-  final Color color;
-
-  const SliverDelegate(this.widget, {required this.color});
-
-  @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      color: color,
-      child: widget,
-    );
-  }
-
-  @override
-  bool shouldRebuild(SliverDelegate oldDelegate) {
-    return false;
-  }
-
-  @override
-  double get maxExtent => 40; //widget.preferredSize.height;
-
-  @override
-  double get minExtent => 40; //widget.preferredSize.height;
-}
 
 class SubscribeTabBar extends StatelessWidget implements PreferredSizeWidget {
   final List<UserSubscribe> subscribes;
@@ -94,22 +35,31 @@ class SubscribeTabBar extends StatelessWidget implements PreferredSizeWidget {
                         child: Text(e.name),
                       ),
                     ),
-                    Positioned(
-                        right: 4,
-                        top: 0,
-                        child: Container(
-                          width: 20,
-                          height: 20,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: Colors.orange,
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          child: const Text(
-                            "19",
-                            style: TextStyle(color: Colors.black),
-                          ),
-                        ))
+                    SettingsObx(
+                        keys: [
+                          ObservedKey.isShowNotBrowsedFlag,
+                          e.subscribe.browsedTimesObsKey,
+                        ],
+                        builder: (keys, controller) {
+                          bool isShowNotBrowsedFlag =
+                              controller.getSetting(keys[0]);
+                          if (!isShowNotBrowsedFlag) return Container();
+                          return Positioned(
+                              right: 4,
+                              top: 0,
+                              child: Container(
+                                  width: 20,
+                                  height: 20,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: Text(
+                                    controller.getSetting(keys[1]).toString(),
+                                    style: const TextStyle(color: Colors.white),
+                                  )));
+                        }),
                   ]))
               .toList(),
           indicatorColor: Colors.red,
@@ -177,6 +127,27 @@ class _SbscribeState extends State<SubscribePage>
                     },
                     icon: const Icon(Icons.search)),
                 ToHistoryButton(),
+                PopupMenuButton(
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(10.0),
+                    ),
+                  ),
+                  icon: const Icon(Icons.more_horiz),
+                  itemBuilder: (context) {
+                    return [
+                      const PopupMenuItem(
+                        child: IsShowBrowsedDataButton(),
+                      ),
+                      const PopupMenuItem(
+                        child: IsShowNotBrowsedCountButton(),
+                      ),
+                      const PopupMenuItem(
+                        child: IsLabelLatesetDataButton(),
+                      ),
+                    ];
+                  },
+                )
               ],
               bottom: tabBar,
             ),

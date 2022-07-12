@@ -5,7 +5,9 @@ import 'package:hot_list/common/widgets/image.dart';
 import 'package:hot_list/common/widgets/list.dart';
 import 'package:hot_list/global.dart';
 import 'package:hot_list/hot_list/controllers/browse.dart';
+import 'package:hot_list/hot_list/controllers/setting.dart';
 import 'package:hot_list/hot_list/controllers/subscribe.dart';
+import 'package:hot_list/hot_list/entities/setting.dart';
 import 'package:hot_list/hot_list/entities/subscribe.dart';
 import 'package:hot_list/hot_list/widgets/buttons/subscribe.dart';
 import 'package:hot_list/route.dart';
@@ -42,21 +44,23 @@ class DataTile extends StatefulWidget {
   final DataEntity data;
   final int index;
   final DataSubscribeController controller;
-  const DataTile({Key? key, required this.data, 
+  final bool isBrowsed;
+  final bool isLatest;
+  const DataTile({
+    Key? key,
+    required this.data,
     required this.controller,
-    required this.index})
-      : super(key: key);
+    required this.index,
+    required this.isBrowsed,
+    required this.isLatest,
+  }) : super(key: key);
 
   @override
   State<DataTile> createState() => _DataTileState();
 }
 
 class _DataTileState extends State<DataTile> {
-  @override
-  void initState() {
-    super.initState();
-    widget.data.listenChange('isBrowsed', () => setState(() {}));
-  }
+  late bool isBrowsed = widget.isBrowsed;
 
   @override
   Widget build(BuildContext context) {
@@ -64,18 +68,19 @@ class _DataTileState extends State<DataTile> {
     int index = widget.index;
     Widget? subTitle;
     Widget tralling;
-    Widget title = Text(
-      data.title,
-      style: TextStyle(color: widget.controller.isItemBrowsed(data) ? Colors.grey : Colors.black));
+    Widget title = Text(data.title,
+        style: TextStyle(
+            color: isBrowsed
+                ? Colors.grey
+                : widget.isLatest
+                    ? Colors.red
+                    : Colors.black));
     Widget leading = Column(
       mainAxisAlignment: data.image != null
           ? MainAxisAlignment.start
           : MainAxisAlignment.center,
       children: [
-        Text(
-          (index + 1).toString(),
-          textAlign: TextAlign.end,
-        ),
+        Text((index + 1).toString(), textAlign: TextAlign.end),
       ],
     );
     if (data.image != null) {
@@ -109,7 +114,11 @@ class _DataTileState extends State<DataTile> {
         var record = BrowseRecord(data: data);
         BrowseHistoryController().addItem(record);
         widget.controller.setItemBrowsed(data);
-        goToDetail(record: record);
+        goToDetail(record: record)?.then((value) {
+          if (mounted) {
+            setState(() {});
+          }
+        });
       },
     );
   }
@@ -129,25 +138,41 @@ class SubscriibeDetailWidget extends StatelessWidget {
 
   @override
   Widget build(context) {
-    Widget child = RichListWidget<DataEntity>(
-      controller: DataSubscribeController(subscribe),
-      itemBuilder: (data, index, {arg}) {
-        return DataTile(data: data, index: index, controller: DataSubscribeController(subscribe),);
-      },
-      argument: subscribe,
-    );
-    if (subscribable || scaffoldable) {
-      child = Scaffold(
-        appBar: AppBar(
-          title: Text("${subscribe.site.name}·${subscribe.name}"),
-        ),
-        body: child,
-        floatingActionButton: subscribable
-            ? SubscribeButton<FloatingActionButton>(subscribe)
-            : null,
-      );
-    }
-    return child;
+    return SettingsObx(
+        keys: [ObservedKey.isShowBrowsedData, ObservedKey.isLabelLatestData],
+        builder: (keys, settingController) {
+          DataSubscribeController controller =
+              DataSubscribeController(subscribe);
+          bool isShowBrowsedData = settingController.getSetting(keys[0]);
+          bool isLabelLatest = settingController.getSetting(keys[1]);
+          Widget child = RichListWidget<DataEntity>(
+            itemFilter: (item) =>
+                isShowBrowsedData || !controller.isItemBrowsed(item),
+            controller: DataSubscribeController(subscribe),
+            itemBuilder: (data, index, {arg}) {
+              return DataTile(
+                data: data,
+                index: index,
+                controller: controller,
+                isBrowsed: isShowBrowsedData,
+                isLatest: isLabelLatest && controller.isNewItem(data),
+              );
+            },
+            argument: subscribe,
+          );
+          if (subscribable || scaffoldable) {
+            child = Scaffold(
+              appBar: AppBar(
+                title: Text("${subscribe.site.name}·${subscribe.name}"),
+              ),
+              body: child,
+              floatingActionButton: subscribable
+                  ? SubscribeButton<FloatingActionButton>(subscribe)
+                  : null,
+            );
+          }
+          return child;
+        });
   }
 }
 

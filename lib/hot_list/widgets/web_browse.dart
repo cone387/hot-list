@@ -6,9 +6,10 @@ import 'package:hot_list/logger.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'dart:html' as html;
 
-void goToDetail({required BrowseRecord record}) {
+Future<T?>? goToDetail<T>({required BrowseRecord record}) {
   logger.d("goto $record");
   html.window.open(record.data.url, record.subscribe.name);
+  return null;
 }
 
 class BrowseWidget extends StatelessWidget {

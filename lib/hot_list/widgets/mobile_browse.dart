@@ -7,9 +7,9 @@ import 'package:hot_list/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:hot_list/route.dart';
 
-void goToDetail({required BrowseRecord record}) {
+Future<T?>? goToDetail<T>({required BrowseRecord record}) {
   logger.d("goto $record");
-  Get.toNamed(Routes.browseDetail, arguments: record);
+  return Get.toNamed(Routes.browseDetail, arguments: record);
 }
 
 class BrowseWidget extends StatelessWidget {

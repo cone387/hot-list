@@ -1,11 +1,26 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:dio/dio.dart' as dioRes;
+
+
+dioRes.Response NETWORK_ERROR_RESPONSE =
+    dioRes.Response(
+      statusCode: 600,
+      statusMessage: '网络异常',
+      requestOptions: dioRes.RequestOptions(path: '/'));
+
+dioRes.Response REQUEST_ERROR_RESPONSE =
+    dioRes.Response(
+      statusCode: 700,
+      statusMessage: '请求有异常',
+      requestOptions: dioRes.RequestOptions(path: '/'));
+
 
 class Response {
   late Uri url;
   late dioRes.Response _response;
   late int statusCode;
   String? error;
-  // ignore: non_constant_identifier_names
   late bool OK;
   late bool isAuth;
   static int created = 201;

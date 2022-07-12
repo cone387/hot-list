@@ -43,7 +43,7 @@ mixin ItemUpdateMixin<T> on ItemController<T> {
 
   Future<String?> updateItem(T o) async {
     String? error = await getUpdatingItem(o);
-    if (error != null) {
+    if (error == null) {
       item.value = o;
       onItemUpdated();
     }
@@ -93,6 +93,7 @@ mixin HttpItemUpdateMixin<T extends IdSerializable>
     on ItemUpdateMixin<T>, HttpItemMixin<T> {
   String get updateUrl;
 
+  @override
   Future<String?> getUpdatingItem(T newItem) async {
     var body = getUpdatedJson(item.value.toJson(), newItem.toJson());
     var response = await requests.patch(updateUrl, body: body);
