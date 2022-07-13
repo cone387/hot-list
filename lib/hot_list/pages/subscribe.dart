@@ -122,18 +122,17 @@ class _SbscribeState extends State<SubscribePage>
               centerTitle: true,
               actions: [
                 IconButton(
+                    padding: EdgeInsets.zero,
+                    // constraints: const BoxConstraints(),
                     onPressed: () {
                       Get.toNamed(Routes.search);
                     },
                     icon: const Icon(Icons.search)),
                 ToHistoryButton(),
                 PopupMenuButton(
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(10.0),
-                    ),
-                  ),
-                  icon: const Icon(Icons.more_horiz),
+                  constraints: const BoxConstraints(),
+                  padding: EdgeInsets.zero,
+                  icon: const Icon(Icons.more_vert),
                   itemBuilder: (context) {
                     return [
                       const PopupMenuItem(
@@ -144,6 +143,12 @@ class _SbscribeState extends State<SubscribePage>
                       ),
                       const PopupMenuItem(
                         child: IsLabelLatesetDataButton(),
+                      ),
+                      const PopupMenuItem(
+                        child: IsShowNotLatestButton(),
+                      ),
+                      const PopupMenuItem(
+                        child: IsEnableFilterButton(),
                       ),
                     ];
                   },

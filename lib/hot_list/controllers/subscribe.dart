@@ -1,3 +1,4 @@
+import 'package:hot_list/common/controllers/cache.dart';
 import 'package:hot_list/common/controllers/list.dart';
 import 'package:hot_list/common/controllers/mixin.dart';
 import 'package:hot_list/common/entities/types.dart';
@@ -5,7 +6,6 @@ import 'package:hot_list/common/http/requests.dart';
 import 'package:hot_list/hot_list/api.dart';
 import 'package:hot_list/hot_list/controllers/setting.dart';
 import 'package:hot_list/hot_list/controllers/user.dart';
-import 'package:hot_list/hot_list/entities/setting.dart';
 import 'package:hot_list/hot_list/entities/subscribe.dart';
 import 'package:hot_list/hot_list/requests.dart';
 
@@ -97,7 +97,8 @@ class UserSubscribeControler extends HttpRichListController<UserSubscribe>
   String get updateUrl => API.subscribeUpdate;
 }
 
-class DataSubscribeController extends HttpCacheableListController<DataEntity> {
+class DataSubscribeController extends HttpListController<DataEntity>
+    with CacheableSqlListMixin<DataEntity> {
   final Subscribe subscribe;
   DataSubscribeController.of(this.subscribe);
 
@@ -119,31 +120,22 @@ class DataSubscribeController extends HttpCacheableListController<DataEntity> {
     return !cachedItems.contains(data);
   }
 
-  bool isItemBrowsed(DataEntity data) {
-    if (data.isBrowsed) {
-      return true;
-    }
-    DataEntity? oldItem =
-        cachedItems.firstWhereOrNull((element) => data == element);
-    if (oldItem != null) {
-      return oldItem.isBrowsed;
-    }
-    return false;
-  }
-
   @override
   void setItems(List<DataEntity> objects) {
     super.setItems(objects);
-    SettingController.updateSetting(subscribe.browsedTimesObsKey, notBrowsedCount);
+    SettingController.updateSetting(
+        subscribe.browsedTimesObsKey, notBrowsedCount);
   }
 
   int get notBrowsedCount {
-    return items.where((element) => !isItemBrowsed(element)).length;
+    return items.where((element) => !element.isBrowsed).length;
   }
 
   setItemBrowsed(DataEntity data) {
-    SettingController.updateSetting(subscribe.browsedTimesObsKey, notBrowsedCount);
-    toCahce(items);
+    SettingController.updateSetting(
+        subscribe.browsedTimesObsKey, notBrowsedCount);
+    data.isBrowsed = true;
+    updateCacheItem(data);
   }
 
   @override
@@ -163,7 +155,10 @@ class DataSubscribeController extends HttpCacheableListController<DataEntity> {
   }
 
   @override
-  String get key => 'subscribe[${subscribe.name}]-data';
+  String get cacheType => "Subscribe<${subscribe.id}>";
+
+  // @override
+  // String get key => 'subscribe[${subscribe.name}]-data';
 
   @override
   String get listUrl =>

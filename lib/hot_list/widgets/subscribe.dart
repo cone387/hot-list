@@ -43,16 +43,14 @@ class SubscribeTile extends StatelessWidget {
 class DataTile extends StatefulWidget {
   final DataEntity data;
   final int index;
-  final DataSubscribeController controller;
-  final bool isBrowsed;
   final bool isLatest;
+  final Function() onBrowsed;
   const DataTile({
     Key? key,
     required this.data,
-    required this.controller,
     required this.index,
-    required this.isBrowsed,
     required this.isLatest,
+    required this.onBrowsed,
   }) : super(key: key);
 
   @override
@@ -60,8 +58,6 @@ class DataTile extends StatefulWidget {
 }
 
 class _DataTileState extends State<DataTile> {
-  late bool isBrowsed = widget.isBrowsed;
-
   @override
   Widget build(BuildContext context) {
     DataEntity data = widget.data;
@@ -70,7 +66,7 @@ class _DataTileState extends State<DataTile> {
     Widget tralling;
     Widget title = Text(data.title,
         style: TextStyle(
-            color: isBrowsed
+            color: data.isBrowsed
                 ? Colors.grey
                 : widget.isLatest
                     ? Colors.red
@@ -112,11 +108,13 @@ class _DataTileState extends State<DataTile> {
       contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       onTap: () {
         var record = BrowseRecord(data: data);
-        BrowseHistoryController().addItem(record);
-        widget.controller.setItemBrowsed(data);
+        BrowseHistoryController().addItem(record).then((value) {
+          widget.onBrowsed();
+        });
         goToDetail(record: record)?.then((value) {
           if (mounted) {
-            setState(() {});
+            setState(() {
+            });
           }
         });
       },
@@ -139,23 +137,30 @@ class SubscriibeDetailWidget extends StatelessWidget {
   @override
   Widget build(context) {
     return SettingsObx(
-        keys: [ObservedKey.isShowBrowsedData, ObservedKey.isLabelLatestData],
+        keys: [
+          ObservedKey.isShowBrowsedData,
+          ObservedKey.isLabelLatestData,
+          ObservedKey.isShowNotLatestData,
+        ],
         builder: (keys, settingController) {
           DataSubscribeController controller =
               DataSubscribeController(subscribe);
           bool isShowBrowsedData = settingController.getSetting(keys[0]);
           bool isLabelLatest = settingController.getSetting(keys[1]);
+          bool isShowNotLatest = settingController.getSetting(keys[2]);
           Widget child = RichListWidget<DataEntity>(
             itemFilter: (item) =>
-                isShowBrowsedData || !controller.isItemBrowsed(item),
+                (isShowBrowsedData || !item.isBrowsed) &&
+                (isShowNotLatest || controller.isNewItem(item)),
             controller: DataSubscribeController(subscribe),
             itemBuilder: (data, index, {arg}) {
               return DataTile(
                 data: data,
                 index: index,
-                controller: controller,
-                isBrowsed: isShowBrowsedData,
                 isLatest: isLabelLatest && controller.isNewItem(data),
+                onBrowsed: () {
+                  controller.setItemBrowsed(data);
+                },
               );
             },
             argument: subscribe,

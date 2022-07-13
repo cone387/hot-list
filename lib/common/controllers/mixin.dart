@@ -278,6 +278,7 @@ mixin CacheableListMixin<T extends Serializable> on ListController<T> {
   toCahce(List<T> objects) {
     if (objects.isNotEmpty && enableCache) {
       writeItemsToCache(objects);
+      cachedItems = objects;
     }
   }
 

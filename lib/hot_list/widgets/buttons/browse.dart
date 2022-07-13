@@ -11,15 +11,17 @@ import 'package:url_launcher/url_launcher_string.dart';
 
 Widget ToHistoryButton() {
   return IconButton(
-      icon: const Icon(
-        Icons.history,
-        size: 25,
-        // color: Colors.blue,
-      ),
-      onPressed: () {
-        logger.d("click history");
-        Get.toNamed(Routes.browseHistory);
-      });
+    padding: EdgeInsets.zero,
+    constraints: const BoxConstraints(),
+    icon: const Icon(
+      Icons.history,
+      size: 25,
+      // color: Colors.blue,
+    ),
+    onPressed: () {
+      logger.d("click history");
+      Get.toNamed(Routes.browseHistory);
+    });
 }
 
 Widget SubscribeManageButton() {

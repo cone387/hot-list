@@ -96,3 +96,67 @@ class IsLabelLatesetDataButton extends StatelessWidget {
     );
   }
 }
+
+//  是否不显示最近更新的信息
+class IsShowNotLatestButton extends StatelessWidget {
+  const IsShowNotLatestButton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(right: 10.0),
+          child: Icon(Icons.new_label_sharp
+              // size: 17,
+              ),
+        ),
+        const Expanded(child: Text("显示上次未读")),
+        SettingObx(
+            key: ObservedKey.isShowNotLatestData,
+            builder: (key, controller) {
+              return Checkbox(
+                  value: controller.getSetting(key)!,
+                  onChanged: (bool? value) {
+                    value = value ?? true;
+                    controller.updateSetting(key, value);
+                    Get.back();
+                  });
+            })
+      ],
+    );
+  }
+}
+
+//  是否不显示最近更新的信息
+class IsEnableFilterButton extends StatelessWidget {
+  const IsEnableFilterButton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(right: 10.0),
+          child: Icon(Icons.filter_list
+              // size: 17,
+              ),
+        ),
+        const Expanded(child: Text("启用过滤")),
+        SettingObx(
+            key: ObservedKey.isEnableFilter,
+            builder: (key, controller) {
+              return Checkbox(
+                  value: controller.getSetting(key)!,
+                  onChanged: (bool? value) {
+                    value = value ?? true;
+                    controller.updateSetting(key, value);
+                    Get.back();
+                  });
+            })
+      ],
+    );
+  }
+}

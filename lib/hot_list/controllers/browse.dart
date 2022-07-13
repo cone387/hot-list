@@ -78,18 +78,4 @@ class BrowseHistoryController
   bool contains(BrowseRecord record) {
     return items.contains(record);
   }
-
-  
-
-  @override
-  Future<String?> addItem(BrowseRecord item) {
-    item.data.isBrowsed = true;
-    return super.addItem(item);
-  }
-
-  @override
-  Future<String?> removeItem(BrowseRecord item) {
-    item.data.isBrowsed = false;
-    return super.removeItem(item);
-  }
 }

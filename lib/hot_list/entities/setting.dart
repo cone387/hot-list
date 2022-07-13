@@ -68,6 +68,8 @@ class ObservedKey {
   static var browsedTimesChanged =
       SettingKey<int>('browsed-times-changed', value: 0);
   static var isLabelLatestData = SettingKey<bool>('is-label-latest-data', value: true);
+  static var isShowNotLatestData = SettingKey<bool>('is-show-not-latest-data', value: true);
+  static var isEnableFilter = SettingKey<bool>('is-enable-filter', value: true);
 }
 
 class Setting extends IdSerializable {

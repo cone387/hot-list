@@ -44,7 +44,7 @@ class DataEntity extends IdSerializable {
   late DateTime createTime;
   late DateTime updateTime;
 
-  bool _isBrowsed = false;
+  bool isBrowsed = false;
   bool _isCollected = false;
   final Map<String, Function()> _notifyListeners = {};
 
@@ -56,7 +56,7 @@ class DataEntity extends IdSerializable {
     image = json['image'];
     subscribeId = json['subscribe_id'] ?? 0;
     pos = json['crawl_pos'];
-    _isBrowsed = json['is_browsed'] ?? false;
+    isBrowsed = json['is_browsed'] ?? false;
     _isCollected = json['is_collected'] ?? false;
     createTime = DateTime.parse(json['create_time']);
     updateTime = DateTime.parse(json['update_time']);
@@ -72,8 +72,8 @@ class DataEntity extends IdSerializable {
       'image': image,
       'subscribe_id': subscribeId,
       'crawl_pos': pos,
-      'is_browsed': _isBrowsed,
-      'iscoverted': _isCollected,
+      'is_browsed': isBrowsed,
+      'is_collected': _isCollected,
       'create_time': createTime.YYmmddHHMMSS,
       'update_time': updateTime.YYmmddHHMMSS
     };
@@ -81,25 +81,11 @@ class DataEntity extends IdSerializable {
 
   @override
   String toString() {
-    return "Data(title=$title, tag=$tag)";
-  }
-
-  bool get isBrowsed {
-    if (!_isBrowsed) {
-      _isBrowsed = BrowseHistoryController().contains(BrowseRecord(data: this));
-    }
-    return _isBrowsed;
+    return "Data(id=$id, title=$title, tag=$tag, browsed=$isBrowsed, collected=$_isCollected)";
   }
 
   listenChange(name, Function() listener) {
     _notifyListeners[name] ??= listener;
-  }
-
-  set isBrowsed(bool value) {
-    if (value != _isBrowsed) {
-      _isBrowsed = value;
-      _notifyListeners['isBrowsed']?.call();
-    }
   }
 
   bool get isCollected {
@@ -164,8 +150,9 @@ class Subscribe extends IdSerializable {
   String? image;
   late WebSite site;
   List<DataEntity> dataList = [];
-  
-  late SettingKey browsedTimesObsKey = SettingKey('subscribe<$id>browsed-times-changed', value: 0);
+
+  late SettingKey browsedTimesObsKey =
+      SettingKey('subscribe<$id>browsed-times-changed', value: 0);
 
   Subscribe();
 

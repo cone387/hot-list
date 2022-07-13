@@ -8,11 +8,16 @@ abstract class SqliteDB {
 
   static Database get db => _db!;
 
+  static bool isInitilized = false;
+
   static Future<void> init(
       {String name: "app.db",
       Function(Database db, int version)? onInit}) async {
-    String path = await getDatabasesPath() + '/' + name;
-    logger.d("db path is $path");
-    _db = await openDatabase(path, onCreate: onInit);
+    if(!isInitilized){
+      isInitilized = true;
+      String path = '${await getDatabasesPath()}/$name';
+      logger.d("db path is $path");
+      _db = await openDatabase(path, onCreate: onInit);
+    }
   }
 }
